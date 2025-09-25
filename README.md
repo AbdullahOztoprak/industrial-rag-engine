@@ -3,7 +3,8 @@
 # Industrial Automation AI Assistant 🚀🤖
 
 > This project was developed as a showcase for an industrial automation AI internship application. It demonstrates skills in software design, implementation, debugging, unit/module testing, test automation, and release tasks for industrial automation projects. The solution leverages state-of-the-art AI models (LLMs), LangChain, and modern web technologies (Streamlit, FastAPI) to create a professional chatbot focused on industrial/building automation topics.
->
+
+
 > **Key responsibilities and qualifications addressed in this project:**
 > - Applied AI for industrial/building automation
 > - LLM-based solution development (LangChain, OpenAI)
