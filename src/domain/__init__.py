@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field
 
 
 # ─── Enumerations ─────────────────────────────────────────────────────────────
-
+# ─── Core Domain Models ─────────────────────────────────────────────────────────
 
 class RiskLevel(str, Enum):
     """Risk classification for industrial issues."""
