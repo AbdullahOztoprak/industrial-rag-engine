@@ -11,7 +11,11 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from langchain_community.document_loaders import DirectoryLoader, TextLoader, PyPDFLoader
+from langchain_community.document_loaders import (
+    DirectoryLoader,
+    TextLoader,
+    PyPDFLoader,
+)
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 
@@ -29,7 +33,7 @@ LOADER_MAPPING: dict[str, type] = {
 class DocumentLoader:
     """
     Industrial document ingestion pipeline.
-    
+
     Responsibilities:
     - Load documents from configured directory
     - Split documents into semantic chunks

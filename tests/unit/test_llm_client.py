@@ -23,6 +23,7 @@ class TestLLMClientInit:
 
     def test_init_without_api_key_raises(self):
         from src.config.settings import Settings
+
         settings = Settings(openai_api_key=None)
         with pytest.raises(ValueError, match="API key is required"):
             LLMClient(settings=settings)

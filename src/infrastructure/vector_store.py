@@ -7,7 +7,6 @@ Provides semantic search over industrial documentation embeddings.
 from __future__ import annotations
 
 import logging
-from pathlib import Path
 from typing import Optional
 
 from langchain_openai import OpenAIEmbeddings

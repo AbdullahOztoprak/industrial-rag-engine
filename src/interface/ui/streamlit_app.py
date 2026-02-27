@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Streamlit UI — Industrial AI Knowledge Assistant Frontend.
 
@@ -5,21 +6,15 @@ Professional interface for the industrial automation chatbot
 with structured response display, confidence indicators, and
 safety warnings.
 """
-
-from __future__ import annotations
-
-import streamlit as st
-import os
 import sys
 from pathlib import Path
-
 # Ensure src is on the path
 project_root = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
-
+import streamlit as st
 from src.config.settings import Settings
 from src.application.chat_service import ChatService
-from src.domain import ChatRequest, IndustrialDomain, RiskLevel, ConfidenceLevel
+from src.domain import ChatRequest, RiskLevel, ConfidenceLevel
 
 
 # ── Page Configuration ────────────────────────────────────────────────────────
@@ -33,6 +28,7 @@ st.set_page_config(
 
 
 # ── State Initialization ─────────────────────────────────────────────────────
+
 
 def init_session_state() -> None:
     """Initialize Streamlit session state."""
@@ -71,6 +67,7 @@ def get_chat_service() -> ChatService | None:
 
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
+
 
 def render_sidebar() -> None:
     """Render the sidebar with configuration options."""
@@ -127,7 +124,9 @@ def render_sidebar() -> None:
                     st.session_state["rag_initialized"] = True
                     st.sidebar.success("RAG pipeline initialized!")
                 else:
-                    st.sidebar.error("RAG initialization failed. Check documents directory.")
+                    st.sidebar.error(
+                        "RAG initialization failed. Check documents directory."
+                    )
         else:
             st.sidebar.error("Configure API key first.")
 
@@ -154,6 +153,7 @@ def render_sidebar() -> None:
 
 
 # ── Response Rendering ────────────────────────────────────────────────────────
+
 
 def render_industrial_response(response) -> None:
     """Render a structured industrial response with metadata."""
@@ -193,7 +193,9 @@ def render_industrial_response(response) -> None:
     if response.safety_warnings:
         st.markdown("---")
         for warning in response.safety_warnings:
-            icon = "🔴" if warning.level in [RiskLevel.CRITICAL, RiskLevel.HIGH] else "⚠️"
+            icon = (
+                "🔴" if warning.level in [RiskLevel.CRITICAL, RiskLevel.HIGH] else "⚠️"
+            )
             st.warning(f"{icon} **Safety Warning:** {warning.message}")
 
     # Sources
@@ -214,6 +216,7 @@ def render_industrial_response(response) -> None:
 
 
 # ── Main Chat Interface ──────────────────────────────────────────────────────
+
 
 def render_chat() -> None:
     """Render the main chat interface."""
@@ -260,24 +263,29 @@ def render_chat() -> None:
 
                     render_industrial_response(result.response)
 
-                    st.session_state["messages"].append({
-                        "role": "assistant",
-                        "content": result.response.answer,
-                        "response_obj": result.response,
-                    })
+                    st.session_state["messages"].append(
+                        {
+                            "role": "assistant",
+                            "content": result.response.answer,
+                            "response_obj": result.response,
+                        }
+                    )
             else:
                 fallback = (
                     "Please configure your OpenAI API key in the sidebar "
                     "to enable AI-powered responses."
                 )
                 st.markdown(fallback)
-                st.session_state["messages"].append({
-                    "role": "assistant",
-                    "content": fallback,
-                })
+                st.session_state["messages"].append(
+                    {
+                        "role": "assistant",
+                        "content": fallback,
+                    }
+                )
 
 
 # ── Main Entry ────────────────────────────────────────────────────────────────
+
 
 def main() -> None:
     """Main application entry point."""

@@ -5,8 +5,6 @@ Test fixtures and shared configuration for all tests.
 import os
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch
-
 import pytest
 
 # Ensure project root is on path
@@ -102,18 +100,18 @@ def mock_llm_response():
 def sample_document_text():
     """Sample industrial document text for RAG testing."""
     return """
-    # PLC Programming Best Practices
-    
-    Programmable Logic Controllers (PLCs) are industrial computers adapted 
-    for the control of manufacturing processes. Key programming languages 
-    include Ladder Logic (LD), Structured Text (ST), and Function Block 
-    Diagram (FBD) as defined in IEC 61131-3.
-    
-    ## PID Control Implementation
-    
-    PID control requires proper tuning of Kp, Ki, and Kd parameters.
-    Anti-windup protection should be implemented for the integral term.
-    """
+# PLC Programming Best Practices
+
+Programmable Logic Controllers (PLCs) are industrial computers adapted
+for the control of manufacturing processes. Key programming languages
+include Ladder Logic (LD), Structured Text (ST), and Function Block
+Diagram (FBD) as defined in IEC 61131-3.
+
+## PID Control Implementation
+
+PID control requires proper tuning of Kp, Ki, and Kd parameters.
+Anti-windup protection should be implemented for the integral term.
+"""
 
 
 @pytest.fixture

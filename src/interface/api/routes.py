@@ -5,8 +5,6 @@ API Routes for the Industrial AI Knowledge Assistant.
 from __future__ import annotations
 
 import logging
-from typing import Optional
-
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from src.config.settings import Settings, get_settings
@@ -106,8 +104,7 @@ async def get_industrial_topics() -> dict[str, list[dict[str, str]]]:
     """Get the list of supported industrial automation domains."""
     return {
         "domains": [
-            {"name": domain.value, "key": domain.name}
-            for domain in IndustrialDomain
+            {"name": domain.value, "key": domain.name} for domain in IndustrialDomain
         ]
     }
 

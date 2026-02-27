@@ -63,9 +63,7 @@ class RAGService:
 
             self._vector_store.build_from_documents(chunks)
             self._is_initialized = True
-            logger.info(
-                f"RAG pipeline initialized: {len(chunks)} chunks indexed"
-            )
+            logger.info(f"RAG pipeline initialized: {len(chunks)} chunks indexed")
             return True
 
         except Exception as e:
@@ -119,9 +117,7 @@ class RAGService:
             chunks.append(chunk)
             scores.append(round(score, 4))
 
-        logger.debug(
-            f"Retrieved {len(chunks)} chunks for query: '{query[:50]}...'"
-        )
+        logger.debug(f"Retrieved {len(chunks)} chunks for query: '{query[:50]}...'")
         return RetrievalResult(query=query, chunks=chunks, relevance_scores=scores)
 
     def build_augmented_prompt(self, query: str, retrieval: RetrievalResult) -> str:
@@ -141,9 +137,7 @@ class RAGService:
         context_parts: list[str] = []
         for i, chunk in enumerate(retrieval.chunks):
             source_name = chunk.metadata.get("document_name", chunk.source)
-            context_parts.append(
-                f"[Source {i + 1}: {source_name}]\n{chunk.content}"
-            )
+            context_parts.append(f"[Source {i + 1}: {source_name}]\n{chunk.content}")
 
         context = "\n\n---\n\n".join(context_parts)
 
@@ -166,7 +160,11 @@ class RAGService:
             attributions.append(
                 SourceAttribution(
                     document=chunk.metadata.get("document_name", chunk.source),
-                    section=chunk.content[:100] + "..." if len(chunk.content) > 100 else chunk.content,
+                    section=(
+                        chunk.content[:100] + "..."
+                        if len(chunk.content) > 100
+                        else chunk.content
+                    ),
                     relevance_score=score,
                     excerpt=chunk.content[:200],
                 )
