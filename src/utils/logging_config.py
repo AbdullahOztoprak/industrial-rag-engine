@@ -34,11 +34,28 @@ class JSONFormatter(logging.Formatter):
         if hasattr(record, "__dict__"):
             for key, value in record.__dict__.items():
                 if key not in (
-                    "name", "msg", "args", "created", "relativeCreated",
-                    "exc_info", "exc_text", "stack_info", "lineno", "funcName",
-                    "pathname", "filename", "module", "levelname", "levelno",
-                    "msecs", "thread", "threadName", "process", "processName",
-                    "message", "taskName",
+                    "name",
+                    "msg",
+                    "args",
+                    "created",
+                    "relativeCreated",
+                    "exc_info",
+                    "exc_text",
+                    "stack_info",
+                    "lineno",
+                    "funcName",
+                    "pathname",
+                    "filename",
+                    "module",
+                    "levelname",
+                    "levelno",
+                    "msecs",
+                    "thread",
+                    "threadName",
+                    "process",
+                    "processName",
+                    "message",
+                    "taskName",
                 ):
                     log_data[key] = value
 

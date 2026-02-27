@@ -6,8 +6,6 @@ All configuration is validated at startup to fail fast on misconfiguration.
 """
 
 from __future__ import annotations
-
-import os
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path
@@ -19,6 +17,7 @@ from pydantic_settings import BaseSettings
 
 class Environment(str, Enum):
     """Deployment environment."""
+
     DEVELOPMENT = "development"
     STAGING = "staging"
     PRODUCTION = "production"
@@ -26,6 +25,7 @@ class Environment(str, Enum):
 
 class LogLevel(str, Enum):
     """Supported log levels."""
+
     DEBUG = "DEBUG"
     INFO = "INFO"
     WARNING = "WARNING"
@@ -50,9 +50,15 @@ class Settings(BaseSettings):
     # --- LLM Configuration ---
     openai_api_key: Optional[str] = Field(default=None, description="OpenAI API key")
     llm_model: str = Field(default="gpt-3.5-turbo", description="Default LLM model")
-    llm_temperature: float = Field(default=0.3, ge=0.0, le=2.0, description="LLM temperature")
-    llm_max_tokens: int = Field(default=1500, ge=100, le=8000, description="Max tokens per response")
-    llm_request_timeout: int = Field(default=30, description="LLM request timeout in seconds")
+    llm_temperature: float = Field(
+        default=0.3, ge=0.0, le=2.0, description="LLM temperature"
+    )
+    llm_max_tokens: int = Field(
+        default=1500, ge=100, le=8000, description="Max tokens per response"
+    )
+    llm_request_timeout: int = Field(
+        default=30, description="LLM request timeout in seconds"
+    )
 
     # --- RAG Configuration ---
     embedding_model: str = "text-embedding-ada-002"
@@ -63,7 +69,7 @@ class Settings(BaseSettings):
     vector_store_path: Optional[str] = None
 
     # --- API Configuration ---
-    api_host: str = "0.0.0.0"
+    api_host: str = "0.0.0.0"  # nosec B104
     api_port: int = 8000
     api_workers: int = 1
     cors_origins: list[str] = ["http://localhost:8501", "http://localhost:3000"]
@@ -88,7 +94,9 @@ class Settings(BaseSettings):
         """Ensure chunk_overlap is less than chunk_size."""
         chunk_size = info.data.get("chunk_size", 1000)
         if v >= chunk_size:
-            raise ValueError(f"chunk_overlap ({v}) must be less than chunk_size ({chunk_size})")
+            raise ValueError(
+                f"chunk_overlap ({v}) must be less than chunk_size ({chunk_size})"
+            )
         return v
 
     @field_validator("openai_api_key")
@@ -111,7 +119,7 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     """
     Get cached application settings.
-    
+
     Returns:
         Validated Settings instance. Cached after first call.
     """

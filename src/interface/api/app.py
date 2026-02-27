@@ -90,7 +90,9 @@ def create_app() -> FastAPI:
             status_code=500,
             content={
                 "error": "Internal server error",
-                "detail": str(exc) if settings.debug else "An unexpected error occurred",
+                "detail": (
+                    str(exc) if settings.debug else "An unexpected error occurred"
+                ),
             },
         )
 

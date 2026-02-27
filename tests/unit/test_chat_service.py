@@ -5,13 +5,12 @@ Tests the full pipeline with mocked infrastructure dependencies.
 """
 
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from src.application.chat_service import ChatService
 from src.domain import (
     ChatRequest,
     IndustrialDomain,
-    MessageRole,
 )
 
 
@@ -173,9 +172,7 @@ class TestChatServiceConversation:
 class TestChatServiceErrorHandling:
     """Tests for error handling in the pipeline."""
 
-    def test_llm_failure_returns_error_message(
-        self, mock_rag_service, test_settings
-    ):
+    def test_llm_failure_returns_error_message(self, mock_rag_service, test_settings):
         from src.infrastructure.llm_client import LLMError
 
         mock_llm = MagicMock()

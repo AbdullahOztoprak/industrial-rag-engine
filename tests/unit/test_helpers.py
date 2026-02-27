@@ -3,8 +3,6 @@ Unit tests for helper functions.
 """
 
 import json
-import os
-import pytest
 
 from src.utils.helpers import (
     validate_api_key,

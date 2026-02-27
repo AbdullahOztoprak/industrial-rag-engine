@@ -5,9 +5,8 @@ Tests FastAPI routes using TestClient with mocked service layer.
 """
 
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
-
 from src.interface.api.app import create_app
 from src.domain import (
     ChatResponseDTO,

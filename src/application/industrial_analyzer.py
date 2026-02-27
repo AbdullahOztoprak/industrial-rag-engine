@@ -18,7 +18,6 @@ from typing import Optional
 from src.domain import (
     ConfidenceLevel,
     IndustrialDomain,
-    IndustrialResponse,
     RiskLevel,
     SafetyWarning,
     SourceAttribution,
@@ -30,52 +29,136 @@ logger = logging.getLogger(__name__)
 
 DOMAIN_KEYWORDS: dict[IndustrialDomain, list[str]] = {
     IndustrialDomain.PLC_PROGRAMMING: [
-        "plc", "ladder logic", "structured text", "function block",
-        "iec 61131", "siemens", "allen-bradley", "codesys", "tia portal",
-        "scan time", "i/o module", "digital input", "analog output",
+        "plc",
+        "ladder logic",
+        "structured text",
+        "function block",
+        "iec 61131",
+        "siemens",
+        "allen-bradley",
+        "codesys",
+        "tia portal",
+        "scan time",
+        "i/o module",
+        "digital input",
+        "analog output",
     ],
     IndustrialDomain.SCADA_SYSTEMS: [
-        "scada", "hmi", "supervisory", "data acquisition",
-        "historian", "trend", "alarm management", "opc",
+        "scada",
+        "hmi",
+        "supervisory",
+        "data acquisition",
+        "historian",
+        "trend",
+        "alarm management",
+        "opc",
     ],
     IndustrialDomain.BUILDING_AUTOMATION: [
-        "building automation", "bas", "hvac", "bacnet", "knx",
-        "dali", "vav", "ahu", "chiller", "boiler", "bms",
-        "building management", "energy efficiency",
+        "building automation",
+        "bas",
+        "hvac",
+        "bacnet",
+        "knx",
+        "dali",
+        "vav",
+        "ahu",
+        "chiller",
+        "boiler",
+        "bms",
+        "building management",
+        "energy efficiency",
     ],
     IndustrialDomain.PREDICTIVE_MAINTENANCE: [
-        "predictive maintenance", "condition monitoring", "vibration",
-        "remaining useful life", "fault detection", "diagnostics",
-        "mtbf", "mttr", "reliability", "degradation",
+        "predictive maintenance",
+        "condition monitoring",
+        "vibration",
+        "remaining useful life",
+        "fault detection",
+        "diagnostics",
+        "mtbf",
+        "mttr",
+        "reliability",
+        "degradation",
     ],
     IndustrialDomain.INDUSTRIAL_IOT: [
-        "industrial iot", "iiot", "mqtt", "opc ua", "edge computing",
-        "gateway", "sensor network", "digital twin",
+        "industrial iot",
+        "iiot",
+        "mqtt",
+        "opc ua",
+        "edge computing",
+        "gateway",
+        "sensor network",
+        "digital twin",
     ],
     IndustrialDomain.MANUFACTURING_EXECUTION: [
-        "mes", "manufacturing execution", "production planning",
-        "quality management", "sap", "erp integration",
+        "mes",
+        "manufacturing execution",
+        "production planning",
+        "quality management",
+        "sap",
+        "erp integration",
     ],
     IndustrialDomain.ALARM_MANAGEMENT: [
-        "alarm", "alert", "notification", "isa-18.2",
-        "alarm rationalization", "alarm flood", "shelving",
+        "alarm",
+        "alert",
+        "notification",
+        "isa-18.2",
+        "alarm rationalization",
+        "alarm flood",
+        "shelving",
     ],
     IndustrialDomain.ENERGY_MANAGEMENT: [
-        "energy management", "power monitoring", "load shedding",
-        "demand response", "iso 50001", "energy audit",
+        "energy management",
+        "power monitoring",
+        "load shedding",
+        "demand response",
+        "iso 50001",
+        "energy audit",
     ],
 }
 
 # Keywords that trigger safety warnings
 SAFETY_KEYWORDS: list[tuple[str, RiskLevel, str]] = [
-    ("high voltage", RiskLevel.CRITICAL, "High voltage hazard — qualified personnel only (IEC 60204)"),
-    ("lockout", RiskLevel.CRITICAL, "Lockout/Tagout required before maintenance (OSHA 1910.147)"),
-    ("tagout", RiskLevel.CRITICAL, "Lockout/Tagout required before maintenance (OSHA 1910.147)"),
-    ("emergency stop", RiskLevel.HIGH, "Emergency stop circuits must comply with IEC 60204-1"),
-    ("safety plc", RiskLevel.HIGH, "Safety PLCs must meet SIL requirements per IEC 61508"),
-    ("sil", RiskLevel.HIGH, "Safety Integrity Level — refer to IEC 61508/61511 standards"),
-    ("explosive", RiskLevel.CRITICAL, "Hazardous area classification required (ATEX/IECEx)"),
-    ("pressure vessel", RiskLevel.HIGH, "Pressure equipment must comply with local regulations"),
+    (
+        "high voltage",
+        RiskLevel.CRITICAL,
+        "High voltage hazard — qualified personnel only (IEC 60204)",
+    ),
+    (
+        "lockout",
+        RiskLevel.CRITICAL,
+        "Lockout/Tagout required before maintenance (OSHA 1910.147)",
+    ),
+    (
+        "tagout",
+        RiskLevel.CRITICAL,
+        "Lockout/Tagout required before maintenance (OSHA 1910.147)",
+    ),
+    (
+        "emergency stop",
+        RiskLevel.HIGH,
+        "Emergency stop circuits must comply with IEC 60204-1",
+    ),
+    (
+        "safety plc",
+        RiskLevel.HIGH,
+        "Safety PLCs must meet SIL requirements per IEC 61508",
+    ),
+    (
+        "sil",
+        RiskLevel.HIGH,
+        "Safety Integrity Level — refer to IEC 61508/61511 standards",
+    ),
+    (
+        "explosive",
+        RiskLevel.CRITICAL,
+        "Hazardous area classification required (ATEX/IECEx)",
+    ),
+    (
+        "pressure vessel",
+        RiskLevel.HIGH,
+        "Pressure equipment must comply with local regulations",
+    ),
     ("chemical", RiskLevel.HIGH, "Chemical safety assessment required (SDS review)"),
     ("robot", RiskLevel.MEDIUM, "Robotic safety per ISO 10218 / ISO/TS 15066"),
 ]
@@ -83,7 +166,10 @@ SAFETY_KEYWORDS: list[tuple[str, RiskLevel, str]] = [
 # Hallucination indicators
 HALLUCINATION_PATTERNS: list[tuple[str, str]] = [
     (r"(?i)i('m| am) (sure|certain|100%)", "Overconfident claim without source"),
-    (r"(?i)as of (my|the) (last|latest) (update|training)", "Potential temporal hallucination"),
+    (
+        r"(?i)as of (my|the) (last|latest) (update|training)",
+        "Potential temporal hallucination",
+    ),
     (r"(?i)according to .{0,30}(official|documentation)", "Unverifiable source claim"),
     (r"\d{4}-\d{2}-\d{2}", "Specific date claim — verify accuracy"),
     (r"(?i)always|never|guaranteed", "Absolute statement — may not hold in all cases"),
@@ -175,7 +261,12 @@ class IndustrialAnalyzer:
         combined = f"{query} {response_text}".lower()
 
         highest_risk = RiskLevel.LOW
-        risk_order = [RiskLevel.LOW, RiskLevel.MEDIUM, RiskLevel.HIGH, RiskLevel.CRITICAL]
+        risk_order = [
+            RiskLevel.LOW,
+            RiskLevel.MEDIUM,
+            RiskLevel.HIGH,
+            RiskLevel.CRITICAL,
+        ]
 
         for keyword, risk, _ in SAFETY_KEYWORDS:
             if keyword in combined:
@@ -258,7 +349,9 @@ class IndustrialAnalyzer:
             ),
         }
 
-        specific = domain_specifics.get(domain, "DOMAIN FOCUS: General Industrial Automation\n")
+        specific = domain_specifics.get(
+            domain, "DOMAIN FOCUS: General Industrial Automation\n"
+        )
         return base + specific
 
     @staticmethod

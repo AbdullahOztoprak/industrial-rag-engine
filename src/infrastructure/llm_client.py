@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 class LLMClient:
     """
     Production-grade wrapper around LangChain ChatOpenAI.
-    
+
     Responsibilities:
     - Manage LLM lifecycle and configuration
     - Convert domain messages to LangChain format
@@ -194,4 +194,5 @@ class LLMClient:
 
 class LLMError(Exception):
     """Custom exception for LLM-related failures."""
+
     pass

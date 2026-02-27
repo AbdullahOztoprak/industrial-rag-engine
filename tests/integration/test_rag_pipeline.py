@@ -7,7 +7,6 @@ using real documents but mocked embeddings.
 
 import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
 from src.infrastructure.document_loader import DocumentLoader
 from src.config.settings import Settings
@@ -108,7 +107,12 @@ class TestDocumentLoaderWithRealDocs:
 
     def test_load_project_docs(self):
         """Test loading the real industrial docs in the project."""
-        docs_dir = Path(__file__).resolve().parent.parent.parent / "src" / "data" / "industrial_docs"
+        docs_dir = (
+            Path(__file__).resolve().parent.parent.parent
+            / "src"
+            / "data"
+            / "industrial_docs"
+        )
 
         if not docs_dir.exists():
             pytest.skip("Industrial docs directory not found")

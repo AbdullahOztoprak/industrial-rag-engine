@@ -39,7 +39,9 @@ class TestDomainClassification:
 
     def test_predictive_maintenance_classification(self, analyzer):
         query = "How to set up vibration monitoring for predictive maintenance?"
-        assert analyzer.classify_domain(query) == IndustrialDomain.PREDICTIVE_MAINTENANCE
+        assert (
+            analyzer.classify_domain(query) == IndustrialDomain.PREDICTIVE_MAINTENANCE
+        )
 
     def test_iot_classification(self, analyzer):
         query = "How to integrate OPC UA with an industrial IoT gateway?"
@@ -47,7 +49,9 @@ class TestDomainClassification:
 
     def test_mes_classification(self, analyzer):
         query = "How to design a manufacturing execution system with SAP integration?"
-        assert analyzer.classify_domain(query) == IndustrialDomain.MANUFACTURING_EXECUTION
+        assert (
+            analyzer.classify_domain(query) == IndustrialDomain.MANUFACTURING_EXECUTION
+        )
 
     def test_alarm_classification(self, analyzer):
         query = "How to handle alarm flood situations per ISA-18.2?"
@@ -74,7 +78,9 @@ class TestConfidenceScoring:
             SourceAttribution(document="doc1", relevance_score=0.9, excerpt="..."),
             SourceAttribution(document="doc2", relevance_score=0.85, excerpt="..."),
         ]
-        response = "This is a detailed technical explanation about PLC control loops " * 5
+        response = (
+            "This is a detailed technical explanation about PLC control loops " * 5
+        )
         level, score = analyzer.compute_confidence(response, sources, "PLC question")
         assert score > 0.5
         assert level in [ConfidenceLevel.HIGH, ConfidenceLevel.MEDIUM]
@@ -125,8 +131,7 @@ class TestRiskAssessment:
 
     def test_critical_risk_high_voltage(self, analyzer):
         risk = analyzer.assess_risk(
-            "working with high voltage panels",
-            "High voltage equipment requires..."
+            "working with high voltage panels", "High voltage equipment requires..."
         )
         assert risk == RiskLevel.CRITICAL
 
@@ -142,8 +147,7 @@ class TestSafetyWarnings:
 
     def test_warning_for_emergency_stop(self, analyzer):
         warnings = analyzer.generate_safety_warnings(
-            "emergency stop design",
-            "The emergency stop circuit should..."
+            "emergency stop design", "The emergency stop circuit should..."
         )
         assert len(warnings) > 0
         assert any(w.level in [RiskLevel.HIGH, RiskLevel.CRITICAL] for w in warnings)
@@ -151,14 +155,14 @@ class TestSafetyWarnings:
     def test_warning_for_lockout_tagout(self, analyzer):
         warnings = analyzer.generate_safety_warnings(
             "lockout tagout procedures",
-            "Before maintenance, lockout/tagout must be performed..."
+            "Before maintenance, lockout/tagout must be performed...",
         )
         assert len(warnings) > 0
 
     def test_warning_has_standard_reference(self, analyzer):
         warnings = analyzer.generate_safety_warnings(
             "safety plc configuration",
-            "Safety PLCs require SIL assessment per IEC 61508"
+            "Safety PLCs require SIL assessment per IEC 61508",
         )
         # At least one warning should have a standard reference
         has_reference = any(w.standard_reference is not None for w in warnings)
