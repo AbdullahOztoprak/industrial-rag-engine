@@ -1,15 +1,22 @@
-# Core dependencies
-streamlit>=1.28.0        # UI framework
-openai>=0.28.0           # OpenAI API
-langchain>=0.0.335       # LangChain framework
-langchain-openai>=0.0.2  # LangChain OpenAI integration
-fastapi>=0.109.0         # API framework
-uvicorn>=0.25.0          # ASGI server for FastAPI
+# ─── Core Framework ───────────────────────────────────────────
+streamlit>=1.28.0
+fastapi>=0.109.0
+uvicorn[standard]>=0.25.0
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
 
-# Document processing
-pypdf>=4.0.0             # PDF processing
-chromadb>=0.4.22         # Vector database for embeddings
+# ─── LLM & RAG ───────────────────────────────────────────────
+langchain>=0.2.0
+langchain-openai>=0.1.0
+langchain-community>=0.2.0
+langchain-core>=0.2.0
+openai>=1.0.0
 
-# Utilities
-python-dotenv>=1.0.0     # Environment variables
-Pillow>=9.0.0            # Image processing
+# ─── Document Processing & Vector Store ──────────────────────
+pypdf>=4.0.0
+chromadb>=0.4.22
+langchain-text-splitters>=0.2.0
+
+# ─── Utilities ────────────────────────────────────────────────
+python-dotenv>=1.0.0
+Pillow>=9.0.0
