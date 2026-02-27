@@ -96,12 +96,8 @@ class VectorStore:
         top_k = k or self._settings.retrieval_top_k
 
         try:
-            results = self._store.similarity_search_with_relevance_scores(
-                query, k=top_k
-            )
-            logger.debug(
-                f"Similarity search for '{query[:50]}...' returned {len(results)} results"
-            )
+            results = self._store.similarity_search_with_relevance_scores(query, k=top_k)
+            logger.debug(f"Similarity search for '{query[:50]}...' returned {len(results)} results")
             return results
 
         except Exception as e:

@@ -43,9 +43,7 @@ def sanitize_input(text: str, max_length: int = 5000) -> str:
     # Strip whitespace and limit length
     cleaned = text.strip()[:max_length]
     # Remove potential prompt injection patterns
-    cleaned = re.sub(
-        r"(?i)(ignore previous|disregard|forget all)", "[FILTERED]", cleaned
-    )
+    cleaned = re.sub(r"(?i)(ignore previous|disregard|forget all)", "[FILTERED]", cleaned)
     return cleaned
 
 

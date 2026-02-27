@@ -37,8 +37,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     _start_time = time.time()
     settings = get_settings()
     logger.info(
-        f"Starting {settings.app_name} v{settings.app_version} "
-        f"[{settings.environment.value}]"
+        f"Starting {settings.app_name} v{settings.app_version} " f"[{settings.environment.value}]"
     )
     yield
     logger.info("Shutting down application...")
@@ -90,9 +89,7 @@ def create_app() -> FastAPI:
             status_code=500,
             content={
                 "error": "Internal server error",
-                "detail": (
-                    str(exc) if settings.debug else "An unexpected error occurred"
-                ),
+                "detail": (str(exc) if settings.debug else "An unexpected error occurred"),
             },
         )
 

@@ -140,9 +140,7 @@ class IndustrialResponse(BaseModel):
     answer: str = Field(description="Main answer to the query")
 
     # Structured analysis
-    problem_summary: Optional[str] = Field(
-        default=None, description="Concise problem statement"
-    )
+    problem_summary: Optional[str] = Field(default=None, description="Concise problem statement")
     root_cause: Optional[str] = Field(default=None, description="Identified root cause")
     solution: Optional[str] = Field(default=None, description="Recommended solution")
 

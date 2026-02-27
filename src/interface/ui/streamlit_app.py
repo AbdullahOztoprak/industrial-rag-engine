@@ -129,9 +129,7 @@ def render_sidebar() -> None:
                     st.session_state["rag_initialized"] = True
                     st.sidebar.success("RAG pipeline initialized!")
                 else:
-                    st.sidebar.error(
-                        "RAG initialization failed. Check documents directory."
-                    )
+                    st.sidebar.error("RAG initialization failed. Check documents directory.")
         else:
             st.sidebar.error("Configure API key first.")
 
@@ -198,9 +196,7 @@ def render_industrial_response(response) -> None:
     if response.safety_warnings:
         st.markdown("---")
         for warning in response.safety_warnings:
-            icon = (
-                "🔴" if warning.level in [RiskLevel.CRITICAL, RiskLevel.HIGH] else "⚠️"
-            )
+            icon = "🔴" if warning.level in [RiskLevel.CRITICAL, RiskLevel.HIGH] else "⚠️"
             st.warning(f"{icon} **Safety Warning:** {warning.message}")
 
     # Sources

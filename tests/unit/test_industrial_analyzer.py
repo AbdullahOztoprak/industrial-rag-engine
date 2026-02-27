@@ -39,9 +39,7 @@ class TestDomainClassification:
 
     def test_predictive_maintenance_classification(self, analyzer):
         query = "How to set up vibration monitoring for predictive maintenance?"
-        assert (
-            analyzer.classify_domain(query) == IndustrialDomain.PREDICTIVE_MAINTENANCE
-        )
+        assert analyzer.classify_domain(query) == IndustrialDomain.PREDICTIVE_MAINTENANCE
 
     def test_iot_classification(self, analyzer):
         query = "How to integrate OPC UA with an industrial IoT gateway?"
@@ -49,9 +47,7 @@ class TestDomainClassification:
 
     def test_mes_classification(self, analyzer):
         query = "How to design a manufacturing execution system with SAP integration?"
-        assert (
-            analyzer.classify_domain(query) == IndustrialDomain.MANUFACTURING_EXECUTION
-        )
+        assert analyzer.classify_domain(query) == IndustrialDomain.MANUFACTURING_EXECUTION
 
     def test_alarm_classification(self, analyzer):
         query = "How to handle alarm flood situations per ISA-18.2?"
@@ -78,17 +74,13 @@ class TestConfidenceScoring:
             SourceAttribution(document="doc1", relevance_score=0.9, excerpt="..."),
             SourceAttribution(document="doc2", relevance_score=0.85, excerpt="..."),
         ]
-        response = (
-            "This is a detailed technical explanation about PLC control loops " * 5
-        )
+        response = "This is a detailed technical explanation about PLC control loops " * 5
         level, score = analyzer.compute_confidence(response, sources, "PLC question")
         assert score > 0.5
         assert level in [ConfidenceLevel.HIGH, ConfidenceLevel.MEDIUM]
 
     def test_low_confidence_without_sources(self, analyzer):
-        level, score = analyzer.compute_confidence(
-            "Not sure about this.", [], "complex question"
-        )
+        level, score = analyzer.compute_confidence("Not sure about this.", [], "complex question")
         assert score < 0.6
 
     def test_very_short_response_penalized(self, analyzer):
@@ -118,15 +110,11 @@ class TestRiskAssessment:
         assert risk == RiskLevel.LOW
 
     def test_high_risk_safety_plc(self, analyzer):
-        risk = analyzer.assess_risk(
-            "Configure safety PLC", "Safety PLC configuration..."
-        )
+        risk = analyzer.assess_risk("Configure safety PLC", "Safety PLC configuration...")
         assert risk in [RiskLevel.HIGH, RiskLevel.CRITICAL]
 
     def test_critical_risk_emergency_stop(self, analyzer):
-        risk = analyzer.assess_risk(
-            "emergency stop circuit", "The emergency stop must..."
-        )
+        risk = analyzer.assess_risk("emergency stop circuit", "The emergency stop must...")
         assert risk in [RiskLevel.HIGH, RiskLevel.CRITICAL]
 
     def test_critical_risk_high_voltage(self, analyzer):
@@ -140,9 +128,7 @@ class TestSafetyWarnings:
     """Tests for safety warning generation."""
 
     def test_no_warnings_for_safe_query(self, analyzer):
-        warnings = analyzer.generate_safety_warnings(
-            "What is BACnet?", "BACnet is a protocol..."
-        )
+        warnings = analyzer.generate_safety_warnings("What is BACnet?", "BACnet is a protocol...")
         assert len(warnings) == 0
 
     def test_warning_for_emergency_stop(self, analyzer):

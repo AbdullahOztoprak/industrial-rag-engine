@@ -50,15 +50,11 @@ class Settings(BaseSettings):
     # --- LLM Configuration ---
     openai_api_key: Optional[str] = Field(default=None, description="OpenAI API key")
     llm_model: str = Field(default="gpt-3.5-turbo", description="Default LLM model")
-    llm_temperature: float = Field(
-        default=0.3, ge=0.0, le=2.0, description="LLM temperature"
-    )
+    llm_temperature: float = Field(default=0.3, ge=0.0, le=2.0, description="LLM temperature")
     llm_max_tokens: int = Field(
         default=1500, ge=100, le=8000, description="Max tokens per response"
     )
-    llm_request_timeout: int = Field(
-        default=30, description="LLM request timeout in seconds"
-    )
+    llm_request_timeout: int = Field(default=30, description="LLM request timeout in seconds")
 
     # --- RAG Configuration ---
     embedding_model: str = "text-embedding-ada-002"
@@ -94,9 +90,7 @@ class Settings(BaseSettings):
         """Ensure chunk_overlap is less than chunk_size."""
         chunk_size = info.data.get("chunk_size", 1000)
         if v >= chunk_size:
-            raise ValueError(
-                f"chunk_overlap ({v}) must be less than chunk_size ({chunk_size})"
-            )
+            raise ValueError(f"chunk_overlap ({v}) must be less than chunk_size ({chunk_size})")
         return v
 
     @field_validator("openai_api_key")

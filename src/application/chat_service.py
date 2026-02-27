@@ -86,9 +86,7 @@ class ChatService:
 
         if request.use_rag and self._rag.is_initialized:
             retrieval = self._rag.retrieve(request.message)
-            augmented_query = self._rag.build_augmented_prompt(
-                request.message, retrieval
-            )
+            augmented_query = self._rag.build_augmented_prompt(request.message, retrieval)
             sources = self._rag.get_source_attributions(retrieval)
 
         # 5. Prepare messages for LLM
@@ -121,9 +119,7 @@ class ChatService:
             response_text, sources, request.message
         )
         risk_level = self._analyzer.assess_risk(request.message, response_text)
-        safety_warnings = self._analyzer.generate_safety_warnings(
-            request.message, response_text
-        )
+        safety_warnings = self._analyzer.generate_safety_warnings(request.message, response_text)
         hallucination_flags = self._analyzer.detect_hallucination_flags(response_text)
 
         # 8. Store assistant response
@@ -169,9 +165,7 @@ class ChatService:
 
     # ── Conversation Management ──────────────────────────────────────────
 
-    def _get_or_create_conversation(
-        self, conversation_id: Optional[str]
-    ) -> Conversation:
+    def _get_or_create_conversation(self, conversation_id: Optional[str]) -> Conversation:
         """Get an existing conversation or create a new one."""
         if conversation_id and conversation_id in self._conversations:
             return self._conversations[conversation_id]
@@ -192,9 +186,7 @@ class ChatService:
         return False
 
     @staticmethod
-    def _get_recent_messages(
-        conversation: Conversation, limit: int = 10
-    ) -> list[ChatMessage]:
+    def _get_recent_messages(conversation: Conversation, limit: int = 10) -> list[ChatMessage]:
         """Get the most recent messages from a conversation."""
         return conversation.messages[-limit:]
 
