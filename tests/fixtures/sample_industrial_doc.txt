@@ -1,0 +1,39 @@
+# Sample Industrial Test Document
+# Used for RAG pipeline testing
+
+## PLC Troubleshooting Guide
+
+### Common PLC Faults
+
+1. **Communication Loss**
+   - Check Ethernet/Profinet cable connections
+   - Verify IP address configuration
+   - Check PLC CPU status LEDs
+   - Review firewall settings on network switches
+
+2. **I/O Module Failures**
+   - Verify power supply voltage (24VDC typical)
+   - Check wiring connections
+   - Replace faulty modules
+   - Update module firmware
+
+3. **Program Execution Errors**
+   - Check scan time watchdog settings
+   - Review error logs in the PLC diagnostics
+   - Verify memory allocation
+   - Check for infinite loops in user program
+
+### SCADA Alarm Interpretation
+
+| Alarm Code | Description | Priority | Action Required |
+|-----------|-------------|----------|----------------|
+| ALM-001 | High Temperature | Critical | Immediate investigation |
+| ALM-002 | Low Pressure | High | Check pump status |
+| ALM-003 | Communication Timeout | Medium | Verify network |
+| ALM-004 | Sensor Out of Range | Low | Schedule calibration |
+
+### Predictive Maintenance Indicators
+
+- Vibration levels exceeding 7.1 mm/s RMS indicate bearing wear
+- Motor current deviation > 15% from baseline suggests load issues
+- Temperature rise > 10°C above normal operating range requires investigation
