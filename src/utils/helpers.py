@@ -1,157 +1,121 @@
 """
-Helper functions for Industrial Automation Chatbot
+Helper functions for Industrial AI Knowledge Assistant.
+
+General-purpose utility functions used across the application.
 """
 
 import os
 import json
+import re
 from datetime import datetime
-from typing import List, Dict, Any, Optional
+from pathlib import Path
+from typing import Any, Optional
+
 
 def validate_api_key(api_key: str) -> bool:
-    """Validate if an API key is in the correct format
-    
-    Args:
-        api_key: The API key to validate
-        
-    Returns:
-        True if the API key is valid, False otherwise
     """
-    # Simple validation for OpenAI API key format (starts with 'sk-')
-    return api_key and isinstance(api_key, str) and api_key.startswith("sk-")
+    Validate if an API key is in the correct format.
+
+    Args:
+        api_key: The API key to validate.
+
+    Returns:
+        True if the API key appears valid.
+    """
+    if not api_key or not isinstance(api_key, str):
+        return False
+    return api_key.startswith("sk-") and len(api_key) > 20
+
+
+def sanitize_input(text: str, max_length: int = 5000) -> str:
+    """
+    Sanitize user input to prevent injection and excessive length.
+
+    Args:
+        text: Raw input string.
+        max_length: Maximum allowed length.
+
+    Returns:
+        Cleaned input string.
+    """
+    if not text:
+        return ""
+    # Strip whitespace and limit length
+    cleaned = text.strip()[:max_length]
+    # Remove potential prompt injection patterns
+    cleaned = re.sub(r"(?i)(ignore previous|disregard|forget all)", "[FILTERED]", cleaned)
+    return cleaned
+
 
 def save_conversation(
     conversation_id: str,
-    messages: List[Dict[str, str]],
-    save_dir: str = None
+    messages: list[dict[str, str]],
+    save_dir: Optional[str] = None,
 ) -> bool:
-    """Save a conversation to a JSON file
-    
+    """
+    Save a conversation to a JSON file.
+
     Args:
-        conversation_id: Unique identifier for the conversation
-        messages: List of conversation messages
-        save_dir: Directory to save the conversation, defaults to ./conversations
-        
+        conversation_id: Unique identifier for the conversation.
+        messages: List of conversation messages.
+        save_dir: Directory to save the conversation.
+
     Returns:
-        Success status
+        True if saved successfully.
     """
     try:
-        # Create directory if it doesn't exist
         save_dir = save_dir or os.path.join(os.getcwd(), "conversations")
         os.makedirs(save_dir, exist_ok=True)
-        
-        # Prepare filename with timestamp
+
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"{conversation_id}_{timestamp}.json"
         filepath = os.path.join(save_dir, filename)
-        
-        # Prepare data structure
+
         data = {
             "conversation_id": conversation_id,
             "timestamp": timestamp,
-            "messages": messages
+            "message_count": len(messages),
+            "messages": messages,
         }
-        
-        # Write to file
-        with open(filepath, "w") as f:
-            json.dump(data, f, indent=2)
-            
+
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+
         return True
-    except Exception as e:
-        print(f"Error saving conversation: {e}")
+    except Exception:
         return False
 
-def load_conversation(filepath: str) -> Optional[Dict[str, Any]]:
-    """Load a conversation from a JSON file
-    
+
+def load_conversation(filepath: str) -> Optional[dict[str, Any]]:
+    """
+    Load a conversation from a JSON file.
+
     Args:
-        filepath: Path to the conversation file
-        
+        filepath: Path to the conversation file.
+
     Returns:
-        Conversation data or None if error
+        Conversation data or None if error.
     """
     try:
-        if not os.path.exists(filepath):
-            print(f"File not found: {filepath}")
+        path = Path(filepath)
+        if not path.exists():
             return None
-            
-        with open(filepath, "r") as f:
-            data = json.load(f)
-            
-        return data
-    except Exception as e:
-        print(f"Error loading conversation: {e}")
+
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError):
         return None
 
-def format_message_for_display(message: Dict[str, str]) -> Dict[str, Any]:
-    """Format a message for display in the UI
-    
-    Args:
-        message: Raw message dictionary
-        
-    Returns:
-        Formatted message with UI-specific properties
-    """
-    role = message.get("role", "")
-    content = message.get("content", "")
-    
-    # Format based on role
-    if role == "user":
-        return {
-            "role": "user",
-            "content": content,
-            "avatar": "👨‍💼",  # User avatar
-            "align": "left"
-        }
-    elif role == "assistant":
-        return {
-            "role": "assistant",
-            "content": content,
-            "avatar": "🤖",  # Assistant avatar
-            "align": "right"
-        }
-    else:
-        return {
-            "role": role,
-            "content": content,
-            "avatar": "ℹ️",  # System/info avatar
-            "align": "center"
-        }
 
-def get_industrial_topics() -> List[Dict[str, str]]:
-    """Get list of industrial automation topics with descriptions
-    
-    Returns:
-        List of topics with descriptions
-    """
-    return [
-        {
-            "name": "PLC Programming",
-            "description": "Programming logic controllers for industrial automation",
-            "icon": "🔧"
-        },
-        {
-            "name": "SCADA Systems",
-            "description": "Supervisory control and data acquisition for industrial processes",
-            "icon": "📊"
-        },
-        {
-            "name": "Industrial IoT",
-            "description": "Internet of Things applications in industrial settings",
-            "icon": "🌐"
-        },
-        {
-            "name": "Building Automation",
-            "description": "Smart building systems and controls",
-            "icon": "🏢"
-        },
-        {
-            "name": "Manufacturing Execution Systems",
-            "description": "Systems for managing manufacturing operations",
-            "icon": "🏭"
-        },
-        {
-            "name": "Smart Factory Solutions",
-            "description": "Advanced technologies for factory automation",
-            "icon": "🤖"
-        }
-    ]
+def truncate_text(text: str, max_length: int = 200, suffix: str = "...") -> str:
+    """Truncate text to a maximum length with a suffix."""
+    if len(text) <= max_length:
+        return text
+    return text[: max_length - len(suffix)] + suffix
+
+
+def format_response_time(ms: float) -> str:
+    """Format response time for display."""
+    if ms < 1000:
+        return f"{ms:.0f}ms"
+    return f"{ms / 1000:.2f}s"
