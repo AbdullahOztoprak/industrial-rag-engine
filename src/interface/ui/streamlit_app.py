@@ -1,20 +1,25 @@
-from __future__ import annotations
 """
-Streamlit UI — Industrial AI Knowledge Assistant Frontend.
+Streamlit UI - Industrial AI Knowledge Assistant Frontend.
 
 Professional interface for the industrial automation chatbot
 with structured response display, confidence indicators, and
 safety warnings.
 """
+
+from __future__ import annotations
+
 import sys
 from pathlib import Path
+
+import streamlit as st
+
+from src.application.chat_service import ChatService
+from src.config.settings import Settings
+from src.domain import ChatRequest, ConfidenceLevel, RiskLevel
+
 # Ensure src is on the path
 project_root = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
-import streamlit as st
-from src.config.settings import Settings
-from src.application.chat_service import ChatService
-from src.domain import ChatRequest, RiskLevel, ConfidenceLevel
 
 
 # ── Page Configuration ────────────────────────────────────────────────────────

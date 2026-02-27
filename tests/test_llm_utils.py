@@ -1,9 +1,12 @@
 """Unit tests for LLM utilities."""
-import sys
+
 import os
+import sys
 import unittest
 from types import ModuleType
 from unittest.mock import MagicMock, patch
+
+from src.models.llm_utils import DEFAULT_SYSTEM_PROMPT, IndustrialLLMHelper
 
 # Provide lightweight mocks for langchain packages used at import-time by
 # src.models.llm_utils so tests can run in CI without the full langchain
@@ -15,10 +18,11 @@ mock_schema = ModuleType("langchain.schema")
 
 mock_chat_models.ChatOpenAI = MagicMock()
 
-class _SimpleMessage:
 
+class _SimpleMessage:
     def __init__(self, content: str = ""):
         self.content = content
+
 
 mock_schema.SystemMessage = _SimpleMessage
 mock_schema.HumanMessage = _SimpleMessage
@@ -33,12 +37,6 @@ sys.modules["langchain.chat_models"] = mock_chat_models
 sys.modules["langchain.schema"] = mock_schema
 
 
-from src.models.llm_utils import (
-    IndustrialLLMHelper,
-    DEFAULT_SYSTEM_PROMPT,
-)
-
-
 class TestIndustrialLLMHelper(unittest.TestCase):
     """Test cases for IndustrialLLMHelper class."""
 
@@ -49,10 +47,7 @@ class TestIndustrialLLMHelper(unittest.TestCase):
     @patch("src.models.llm_utils.ChatOpenAI")
     def test_initialization(self, mock_chat_openai):
         """Test initialization of the helper class."""
-        # Arrange & Act
         helper = IndustrialLLMHelper(model_name="gpt-3.5-turbo", temperature=0.7)
-
-        # Assert
         self.assertEqual(helper.model_name, "gpt-3.5-turbo")
         self.assertEqual(helper.temperature, 0.7)
         self.assertEqual(helper.system_prompt, DEFAULT_SYSTEM_PROMPT)

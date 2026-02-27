@@ -1,4 +1,9 @@
 from __future__ import annotations
+import sys
+from pathlib import Path
+from src.config.settings import get_settings
+from src.utils.logging_config import configure_logging
+
 """
 Industrial AI Knowledge Assistant — Application Entry Point.
 
@@ -9,12 +14,9 @@ Usage:
     # Run FastAPI server
     uvicorn src.interface.api.app:create_app --factory --reload
 """
-import sys
-from pathlib import Path
+
 # Ensure project root is on path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from src.config.settings import get_settings
-from src.utils.logging_config import configure_logging
 
 
 def run_ui() -> None:
