@@ -108,10 +108,7 @@ class TestDocumentLoaderWithRealDocs:
     def test_load_project_docs(self):
         """Test loading the real industrial docs in the project."""
         docs_dir = (
-            Path(__file__).resolve().parent.parent.parent
-            / "src"
-            / "data"
-            / "industrial_docs"
+            Path(__file__).resolve().parent.parent.parent / "src" / "data" / "industrial_docs"
         )
 
         if not docs_dir.exists():

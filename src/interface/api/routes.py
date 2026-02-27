@@ -102,11 +102,7 @@ async def initialize_rag(
 @router.get("/topics")
 async def get_industrial_topics() -> dict[str, list[dict[str, str]]]:
     """Get the list of supported industrial automation domains."""
-    return {
-        "domains": [
-            {"name": domain.value, "key": domain.name} for domain in IndustrialDomain
-        ]
-    }
+    return {"domains": [{"name": domain.value, "key": domain.name} for domain in IndustrialDomain]}
 
 
 # ─── Conversation Management ─────────────────────────────────────────────────

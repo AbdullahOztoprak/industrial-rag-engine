@@ -46,8 +46,7 @@ def mock_rag_service():
         relevance_scores=[0.85],
     )
     service.build_augmented_prompt.return_value = (
-        "Context: PID control requires Kp, Ki, Kd tuning...\n"
-        "Question: How to configure PID?"
+        "Context: PID control requires Kp, Ki, Kd tuning...\n" "Question: How to configure PID?"
     )
     service.get_source_attributions.return_value = [
         SourceAttribution(

@@ -34,9 +34,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         window = 60.0  # 1 minute window
 
         # Clean old entries
-        self._requests[client_ip] = [
-            ts for ts in self._requests[client_ip] if now - ts < window
-        ]
+        self._requests[client_ip] = [ts for ts in self._requests[client_ip] if now - ts < window]
 
         if len(self._requests[client_ip]) >= self.max_requests:
             logger.warning(f"Rate limit exceeded for {client_ip}")

@@ -150,9 +150,7 @@ class RAGService:
             f"Answer with technical precision. Cite [Source N] when using context."
         )
 
-    def get_source_attributions(
-        self, retrieval: RetrievalResult
-    ) -> list[SourceAttribution]:
+    def get_source_attributions(self, retrieval: RetrievalResult) -> list[SourceAttribution]:
         """Convert retrieval results to source attributions."""
         attributions: list[SourceAttribution] = []
 
@@ -161,9 +159,7 @@ class RAGService:
                 SourceAttribution(
                     document=chunk.metadata.get("document_name", chunk.source),
                     section=(
-                        chunk.content[:100] + "..."
-                        if len(chunk.content) > 100
-                        else chunk.content
+                        chunk.content[:100] + "..." if len(chunk.content) > 100 else chunk.content
                     ),
                     relevance_score=score,
                     excerpt=chunk.content[:200],

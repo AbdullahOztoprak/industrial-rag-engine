@@ -35,15 +35,11 @@ class IndustrialRAG:
         if not self.api_key:
             raise ValueError("OpenAI API key is required")
 
-        self.docs_dir = docs_dir or os.path.join(
-            os.getcwd(), "src", "data", "industrial_docs"
-        )
+        self.docs_dir = docs_dir or os.path.join(os.getcwd(), "src", "data", "industrial_docs")
         self.embedding_model = embedding_model
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
-        self.embeddings = OpenAIEmbeddings(
-            model=embedding_model, openai_api_key=self.api_key
-        )
+        self.embeddings = OpenAIEmbeddings(model=embedding_model, openai_api_key=self.api_key)
         self.vectorstore = None
 
     def load_documents(self) -> None:
@@ -55,17 +51,13 @@ class IndustrialRAG:
         loaders = []
 
         try:
-            text_loader = DirectoryLoader(
-                self.docs_dir, glob="**/*.txt", loader_cls=TextLoader
-            )
+            text_loader = DirectoryLoader(self.docs_dir, glob="**/*.txt", loader_cls=TextLoader)
             loaders.append(text_loader)
         except Exception as e:
             print(f"Error loading text files: {e}")
 
         try:
-            pdf_loader = DirectoryLoader(
-                self.docs_dir, glob="**/*.pdf", loader_cls=PyPDFLoader
-            )
+            pdf_loader = DirectoryLoader(self.docs_dir, glob="**/*.pdf", loader_cls=PyPDFLoader)
             loaders.append(pdf_loader)
         except Exception as e:
             print(f"Error loading PDF files: {e}")
@@ -86,9 +78,7 @@ class IndustrialRAG:
         splits = text_splitter.split_documents(documents)
         print(f"Split into {len(splits)} chunks")
 
-        self.vectorstore = Chroma.from_documents(
-            documents=splits, embedding=self.embeddings
-        )
+        self.vectorstore = Chroma.from_documents(documents=splits, embedding=self.embeddings)
 
         print("Vector store created successfully")
 

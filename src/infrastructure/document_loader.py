@@ -77,9 +77,7 @@ class DocumentLoader:
                 )
                 docs = loader.load()
                 all_documents.extend(docs)
-                logger.info(
-                    f"Loaded {len(docs)} documents matching {glob_pattern} from {docs_dir}"
-                )
+                logger.info(f"Loaded {len(docs)} documents matching {glob_pattern} from {docs_dir}")
             except Exception as e:
                 logger.error(f"Error loading {glob_pattern} files: {e}")
 
@@ -130,8 +128,7 @@ class DocumentLoader:
 
         if loader_cls is None:
             raise ValueError(
-                f"Unsupported file type: {suffix}. "
-                f"Supported: {list(LOADER_MAPPING.keys())}"
+                f"Unsupported file type: {suffix}. " f"Supported: {list(LOADER_MAPPING.keys())}"
             )
 
         try:

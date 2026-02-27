@@ -275,9 +275,7 @@ class IndustrialAnalyzer:
 
         return highest_risk
 
-    def generate_safety_warnings(
-        self, query: str, response_text: str
-    ) -> list[SafetyWarning]:
+    def generate_safety_warnings(self, query: str, response_text: str) -> list[SafetyWarning]:
         """Generate safety warnings based on content analysis."""
         combined = f"{query} {response_text}".lower()
         warnings: list[SafetyWarning] = []
@@ -349,9 +347,7 @@ class IndustrialAnalyzer:
             ),
         }
 
-        specific = domain_specifics.get(
-            domain, "DOMAIN FOCUS: General Industrial Automation\n"
-        )
+        specific = domain_specifics.get(domain, "DOMAIN FOCUS: General Industrial Automation\n")
         return base + specific
 
     @staticmethod
