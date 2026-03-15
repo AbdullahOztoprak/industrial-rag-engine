@@ -100,23 +100,39 @@ class DocumentLoader:
             logger.debug("No document loaders available in this environment.")
         else:
             # DirectoryLoader is stored under the special key '_dir' in the
-            # mapping returned above.
+            # mapping returned above. If it's unavailable, fall back to
+            # walking the filesystem and instantiating per-file loaders.
             DirectoryLoader = loader_mapping.get("_dir")
             for glob_pattern, loader_cls in {
                 k: v for k, v in loader_mapping.items() if k != "_dir"
             }.items():
                 try:
-                    loader = DirectoryLoader(
-                        str(docs_dir),
-                        glob=f"**/{glob_pattern}",
-                        loader_cls=loader_cls,
-                        show_progress=False,
-                    )
-                    docs = loader.load()
-                    all_documents.extend(docs)
-                    logger.info(
-                        f"Loaded {len(docs)} documents matching {glob_pattern} from {docs_dir}"
-                    )
+                    if DirectoryLoader is not None:
+                        loader = DirectoryLoader(
+                            str(docs_dir),
+                            glob=f"**/{glob_pattern}",
+                            loader_cls=loader_cls,
+                            show_progress=False,
+                        )
+                        docs = loader.load()
+                        all_documents.extend(docs)
+                        logger.info(
+                            f"Loaded {len(docs)} documents matching {glob_pattern} from {docs_dir}"
+                        )
+                    else:
+                        # Fallback: iterate files and use the loader class per-file
+                        files = list(docs_dir.rglob(glob_pattern))
+                        for file_path in files:
+                            try:
+                                loader = loader_cls(str(file_path))
+                                docs = loader.load()
+                                all_documents.extend(docs)
+                            except Exception as e:
+                                logger.error(f"Error loading file {file_path}: {e}")
+                        if files:
+                            logger.info(
+                                f"Loaded {len(files)} files matching {glob_pattern} from {docs_dir}"
+                            )
                 except Exception as e:
                     logger.error(f"Error loading {glob_pattern} files: {e}")
 
