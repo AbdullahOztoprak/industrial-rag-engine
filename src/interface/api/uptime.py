@@ -9,8 +9,6 @@ circular imports between app and routes.
 from __future__ import annotations
 
 import time
-from typing import Final
-
 _start_time: float = 0.0
 
 

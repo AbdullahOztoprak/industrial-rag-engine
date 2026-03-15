@@ -12,16 +12,24 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 
-from langchain_core.messages import (
-    AIMessage,
-    BaseMessage,
-    HumanMessage,
-    SystemMessage,
-)
-from langchain_openai import ChatOpenAI
 from pydantic import SecretStr
+
+if TYPE_CHECKING:
+    from langchain_core.messages import (
+        AIMessage,
+        BaseMessage,
+        HumanMessage,
+        SystemMessage,
+    )
+    from langchain_openai import ChatOpenAI
+else:
+    AIMessage = None
+    BaseMessage = Any
+    HumanMessage = None
+    SystemMessage = None
+    ChatOpenAI = None
 
 from src.config.settings import Settings, get_settings
 from src.domain import ChatMessage, MessageRole
@@ -62,13 +70,26 @@ class LLMClient:
         api_key = (
             SecretStr(self._settings.openai_api_key) if self._settings.openai_api_key else None
         )
-        return ChatOpenAI(
-            model=self._settings.llm_model,
-            temperature=self._settings.llm_temperature,
-            model_kwargs={"max_tokens": self._settings.llm_max_tokens},
-            api_key=api_key,
-            timeout=self._settings.llm_request_timeout,
-        )
+        try:
+            from langchain_openai import ChatOpenAI as _ChatOpenAI
+
+            return _ChatOpenAI(
+                model=self._settings.llm_model,
+                temperature=self._settings.llm_temperature,
+                model_kwargs={"max_tokens": self._settings.llm_max_tokens},
+                api_key=api_key,
+                timeout=self._settings.llm_request_timeout,
+            )
+        except Exception:
+            # Fallback dummy LLM for environments without langchain_openai.
+            class _DummyLLM:
+                def bind(self, **kwargs):
+                    return self
+
+                def invoke(self, messages):
+                    raise LLMError("LLM backend unavailable in this environment")
+
+            return _DummyLLM()
 
     # ── Public API ───────────────────────────────────────────────────────
 
@@ -180,18 +201,29 @@ class LLMClient:
         system_prompt: str = "",
     ) -> list[BaseMessage]:
         """Convert domain messages to LangChain format."""
+        try:
+            from langchain_core.messages import AIMessage as _AIMessage, HumanMessage as _HumanMessage, SystemMessage as _SystemMessage
+
+            use_real_classes = True
+        except Exception:
+            _AIMessage = _HumanMessage = _SystemMessage = None
+            use_real_classes = False
+
         lc_messages: list[BaseMessage] = []
 
         if system_prompt:
-            lc_messages.append(SystemMessage(content=system_prompt))
+            if use_real_classes:
+                lc_messages.append(_SystemMessage(content=system_prompt))
+            else:
+                lc_messages.append({"role": "system", "content": system_prompt})
 
         for msg in messages:
             if msg.role == MessageRole.USER:
-                lc_messages.append(HumanMessage(content=msg.content))
+                lc_messages.append(_HumanMessage(content=msg.content) if use_real_classes else {"role": "user", "content": msg.content})
             elif msg.role == MessageRole.ASSISTANT:
-                lc_messages.append(AIMessage(content=msg.content))
+                lc_messages.append(_AIMessage(content=msg.content) if use_real_classes else {"role": "assistant", "content": msg.content})
             elif msg.role == MessageRole.SYSTEM:
-                lc_messages.append(SystemMessage(content=msg.content))
+                lc_messages.append(_SystemMessage(content=msg.content) if use_real_classes else {"role": "system", "content": msg.content})
 
         return lc_messages
 
