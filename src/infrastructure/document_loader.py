@@ -60,6 +60,9 @@ class DocumentLoader:
         self._settings = settings or get_settings()
         # If the real splitter is available use it, otherwise keep a lightweight
         # placeholder that performs trivial splitting to keep tests runnable.
+        # Annotate as Any to avoid mypy conflicts between the real splitter
+        # type and the fallback implementation.
+        self._splitter: Any
         try:
             from langchain_text_splitters import RecursiveCharacterTextSplitter
 

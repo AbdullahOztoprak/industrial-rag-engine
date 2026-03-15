@@ -199,42 +199,49 @@ class LLMClient:
     def _to_langchain_messages(
         messages: list[ChatMessage],
         system_prompt: str = "",
-    ) -> list[BaseMessage]:
+    ) -> list[Any]:
         """Convert domain messages to LangChain format."""
+        _LangchainAI: Any
+        _LangchainHuman: Any
+        _LangchainSystem: Any
         try:
-            from langchain_core.messages import AIMessage as _AIMessage
-            from langchain_core.messages import HumanMessage as _HumanMessage
-            from langchain_core.messages import SystemMessage as _SystemMessage
+            import importlib
 
+            messages_mod = importlib.import_module("langchain_core.messages")
+            _LangchainAI = getattr(messages_mod, "AIMessage")
+            _LangchainHuman = getattr(messages_mod, "HumanMessage")
+            _LangchainSystem = getattr(messages_mod, "SystemMessage")
             use_real_classes = True
         except Exception:
-            _AIMessage = _HumanMessage = _SystemMessage = None
+            _LangchainAI = None
+            _LangchainHuman = None
+            _LangchainSystem = None
             use_real_classes = False
 
-        lc_messages: list[BaseMessage] = []
+        lc_messages: list[Any] = []
 
         if system_prompt:
             if use_real_classes:
-                lc_messages.append(_SystemMessage(content=system_prompt))
+                lc_messages.append(_LangchainSystem(content=system_prompt))
             else:
                 lc_messages.append({"role": "system", "content": system_prompt})
 
         for msg in messages:
             if msg.role == MessageRole.USER:
                 lc_messages.append(
-                    _HumanMessage(content=msg.content)
+                    _LangchainHuman(content=msg.content)
                     if use_real_classes
                     else {"role": "user", "content": msg.content}
                 )
             elif msg.role == MessageRole.ASSISTANT:
                 lc_messages.append(
-                    _AIMessage(content=msg.content)
+                    _LangchainAI(content=msg.content)
                     if use_real_classes
                     else {"role": "assistant", "content": msg.content}
                 )
             elif msg.role == MessageRole.SYSTEM:
                 lc_messages.append(
-                    _SystemMessage(content=msg.content)
+                    _LangchainSystem(content=msg.content)
                     if use_real_classes
                     else {"role": "system", "content": msg.content}
                 )
