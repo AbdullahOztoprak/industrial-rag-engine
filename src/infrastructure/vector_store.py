@@ -7,15 +7,20 @@ Provides semantic search over industrial documentation embeddings.
 from __future__ import annotations
 
 import logging
-from typing import Optional
+from typing import TYPE_CHECKING, Any, Optional, cast
 
-from langchain_community.vectorstores import Chroma
-from langchain_core.documents import Document
-from langchain_openai import OpenAIEmbeddings
+from pydantic import SecretStr
 
 from src.config.settings import Settings, get_settings
 
 logger = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    from langchain_core.documents import Document
+    from langchain_openai import OpenAIEmbeddings
+else:
+    Document = Any
+    OpenAIEmbeddings = Any
 
 
 class VectorStore:
@@ -32,14 +37,22 @@ class VectorStore:
     def __init__(self, settings: Optional[Settings] = None) -> None:
         self._settings = settings or get_settings()
         self._embeddings = self._create_embeddings()
-        self._store: Optional[Chroma] = None
+        self._store: Optional[Any] = None
 
-    def _create_embeddings(self) -> OpenAIEmbeddings:
-        """Create configured embedding model."""
-        return OpenAIEmbeddings(
-            model=self._settings.embedding_model,
-            openai_api_key=self._settings.openai_api_key,
+    def _create_embeddings(self) -> Any:
+        """Create configured embedding model or return None when unavailable."""
+        api_key = (
+            SecretStr(self._settings.openai_api_key) if self._settings.openai_api_key else None
         )
+        try:
+            from langchain_openai import OpenAIEmbeddings as _OpenAIEmbeddings
+
+            return _OpenAIEmbeddings(model=self._settings.embedding_model, api_key=api_key)
+        except Exception:
+            logger.debug(
+                "OpenAIEmbeddings unavailable in this environment; continuing without embeddings."
+            )
+            return None
 
     # ── Public API ───────────────────────────────────────────────────────
 
@@ -56,11 +69,19 @@ class VectorStore:
 
         persist_dir = self._settings.vector_store_path
 
-        self._store = Chroma.from_documents(
-            documents=documents,
-            embedding=self._embeddings,
-            persist_directory=persist_dir,
-        )
+        try:
+            from langchain_community.vectorstores import Chroma as _Chroma
+
+            if self._embeddings is None:
+                logger.warning("Embeddings not available; cannot build vector store.")
+                return
+
+            self._store = _Chroma.from_documents(
+                documents=documents, embedding=self._embeddings, persist_directory=persist_dir
+            )
+        except Exception as e:
+            logger.error(f"Failed to initialize Chroma vector store: {e}")
+            self._store = None
 
         logger.info(
             f"Vector store built with {len(documents)} chunks"
@@ -98,7 +119,7 @@ class VectorStore:
         try:
             results = self._store.similarity_search_with_relevance_scores(query, k=top_k)
             logger.debug(f"Similarity search for '{query[:50]}...' returned {len(results)} results")
-            return results
+            return cast(list[tuple[Document, float]], results)
 
         except Exception as e:
             logger.error(f"Similarity search failed: {e}")
@@ -115,6 +136,7 @@ class VectorStore:
         if self._store is None:
             return 0
         try:
-            return self._store._collection.count()
+            count_fn = cast(Any, self._store._collection.count)
+            return int(count_fn())
         except Exception:
             return 0

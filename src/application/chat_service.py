@@ -101,7 +101,7 @@ class ChatService:
         # 6. Generate LLM response
         try:
             temperature = request.temperature or self._settings.llm_temperature
-            response_text = self._llm.generate(
+            response_text, llm_latency = self._llm.generate(
                 messages=recent_messages,
                 system_prompt=system_prompt,
                 temperature=temperature,
@@ -112,7 +112,7 @@ class ChatService:
                 "I apologize, but I'm unable to generate a response at this time. "
                 "Please check the system configuration and try again."
             )
-            # llm_latency = 0.0
+            llm_latency = 0.0
 
         # 7. Analyze response quality
         confidence_level, confidence_score = self._analyzer.compute_confidence(
@@ -149,6 +149,7 @@ class ChatService:
                 "confidence": confidence_score,
                 "risk": risk_level.value,
                 "latency_ms": round(total_time, 2),
+                "llm_latency_ms": round(llm_latency, 2),
                 "source_count": len(sources),
             },
         )

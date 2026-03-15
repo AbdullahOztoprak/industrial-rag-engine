@@ -1,14 +1,15 @@
 """Retrieval Augmented Generation (RAG) implementation for industrial documentation."""
 
 import os
-from typing import Any, Dict, Optional
+from pathlib import Path
+from typing import Any, Optional, cast
 
 from langchain.chains import RetrievalQA
-from langchain.chat_models import ChatOpenAI
-from langchain.document_loaders import DirectoryLoader, PyPDFLoader, TextLoader
-from langchain.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import Chroma
+from langchain_community.document_loaders import DirectoryLoader, PyPDFLoader, TextLoader
+from langchain_community.vectorstores import Chroma
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from pydantic import SecretStr
 
 
 class IndustrialRAG:
@@ -16,7 +17,7 @@ class IndustrialRAG:
 
     def __init__(
         self,
-        docs_dir: str = None,
+        docs_dir: Optional[str] = None,
         embedding_model: str = "text-embedding-ada-002",
         chunk_size: int = 1000,
         chunk_overlap: int = 200,
@@ -31,7 +32,7 @@ class IndustrialRAG:
             chunk_overlap: Overlap between chunks
             api_key: OpenAI API key
         """
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
+        self.api_key: str = api_key or os.getenv("OPENAI_API_KEY") or ""
         if not self.api_key:
             raise ValueError("OpenAI API key is required")
 
@@ -39,8 +40,11 @@ class IndustrialRAG:
         self.embedding_model = embedding_model
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
-        self.embeddings = OpenAIEmbeddings(model=embedding_model, openai_api_key=self.api_key)
-        self.vectorstore = None
+        self.embeddings = OpenAIEmbeddings(
+            model=embedding_model,
+            api_key=SecretStr(self.api_key),
+        )
+        self.vectorstore: Optional[Chroma] = None
 
     def load_documents(self) -> None:
         """Load documents from the specified directory."""
@@ -48,7 +52,7 @@ class IndustrialRAG:
             print(f"Directory not found: {self.docs_dir}")
             return
 
-        loaders = []
+        loaders: list[DirectoryLoader] = []
 
         try:
             text_loader = DirectoryLoader(self.docs_dir, glob="**/*.txt", loader_cls=TextLoader)
@@ -56,18 +60,19 @@ class IndustrialRAG:
         except Exception as e:
             print(f"Error loading text files: {e}")
 
-        try:
-            pdf_loader = DirectoryLoader(self.docs_dir, glob="**/*.pdf", loader_cls=PyPDFLoader)
-            loaders.append(pdf_loader)
-        except Exception as e:
-            print(f"Error loading PDF files: {e}")
-
         documents = []
         for loader in loaders:
             try:
                 documents.extend(loader.load())
             except Exception as e:
                 print(f"Error in document loading: {e}")
+
+        # Load PDFs explicitly (DirectoryLoader typing does not accept PyPDFLoader)
+        for pdf_path in Path(self.docs_dir).rglob("*.pdf"):
+            try:
+                documents.extend(PyPDFLoader(str(pdf_path)).load())
+            except Exception as e:
+                print(f"Error loading PDF file {pdf_path}: {e}")
 
         print(f"Loaded {len(documents)} documents")
 
@@ -82,7 +87,7 @@ class IndustrialRAG:
 
         print("Vector store created successfully")
 
-    def query(self, question: str, model: str = "gpt-3.5-turbo") -> Dict[str, Any]:
+    def query(self, question: str, model: str = "gpt-3.5-turbo") -> dict[str, Any]:
         """Query the RAG system.
 
         Args:
@@ -98,7 +103,7 @@ class IndustrialRAG:
                 "sources": [],
             }
 
-        llm = ChatOpenAI(model_name=model, temperature=0.7, openai_api_key=self.api_key)
+        llm = ChatOpenAI(model=model, temperature=0.7, api_key=SecretStr(self.api_key))
 
         qa_chain = RetrievalQA.from_chain_type(
             llm=llm,
@@ -107,13 +112,13 @@ class IndustrialRAG:
             return_source_documents=True,
         )
 
-        result = qa_chain({"query": question})
+        result = cast(dict[str, Any], qa_chain({"query": question}))
 
         sources = []
-        if hasattr(result, "source_documents"):
-            for doc in result.source_documents:
-                if hasattr(doc, "metadata") and "source" in doc.metadata:
-                    sources.append(doc.metadata["source"])
+        source_docs = result.get("source_documents", [])
+        for doc in source_docs:
+            if hasattr(doc, "metadata") and "source" in doc.metadata:
+                sources.append(doc.metadata["source"])
 
         return {
             "answer": result["result"],
@@ -134,6 +139,7 @@ class IndustrialRAG:
             return False
 
         try:
+            loader: TextLoader | PyPDFLoader
             if file_path.endswith(".pdf"):
                 loader = PyPDFLoader(file_path)
             elif file_path.endswith(".txt"):

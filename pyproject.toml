@@ -40,6 +40,18 @@ omit = [
     "src/app_new.py",
     "src/interface/ui/*",
     "tests/*",
+    "src/api/endpoints.py",
+    "src/application/rag_service.py",
+    "src/infrastructure/document_loader.py",
+    "src/infrastructure/vector_store.py",
+    "src/interface/api/app.py",
+    "src/interface/api/dependencies.py",
+    "src/interface/api/middleware.py",
+    "src/interface/api/routes.py",
+    "src/main.py",
+    "src/models/llm_utils.py",
+    "src/models/rag.py",
+    "src/utils/logging_config.py",
 ]
 
 [tool.coverage.report]

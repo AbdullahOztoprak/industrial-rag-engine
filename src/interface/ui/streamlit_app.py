@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from typing import Any, cast
 
 import streamlit as st
 
@@ -37,7 +38,7 @@ st.set_page_config(
 
 def init_session_state() -> None:
     """Initialize Streamlit session state."""
-    defaults = {
+    defaults: dict[str, Any] = {
         "messages": [],
         "conversation_id": None,
         "chat_service": None,
@@ -51,7 +52,7 @@ def init_session_state() -> None:
 def get_chat_service() -> ChatService | None:
     """Get or create the ChatService singleton."""
     if st.session_state.get("chat_service") is not None:
-        return st.session_state["chat_service"]
+        return cast(ChatService, st.session_state["chat_service"])
 
     api_key = st.session_state.get("api_key", "")
     if not api_key:

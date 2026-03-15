@@ -23,6 +23,7 @@ from fastapi.responses import JSONResponse
 from src.config.settings import get_settings
 from src.interface.api.middleware import RateLimitMiddleware
 from src.interface.api.routes import router
+from src.interface.api.uptime import set_start_time
 
 logger = logging.getLogger(__name__)
 
@@ -33,8 +34,7 @@ _start_time: float = 0.0
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifecycle manager."""
-    global _start_time
-    _start_time = time.time()
+    set_start_time(time.time())
     settings = get_settings()
     logger.info(
         f"Starting {settings.app_name} v{settings.app_version} " f"[{settings.environment.value}]"
@@ -100,6 +100,4 @@ def create_app() -> FastAPI:
     return app
 
 
-def get_uptime() -> float:
-    """Get application uptime in seconds."""
-    return time.time() - _start_time if _start_time else 0.0
+# uptime is provided by src.interface.api.uptime

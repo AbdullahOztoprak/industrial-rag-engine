@@ -9,7 +9,7 @@ import os
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 
 def validate_api_key(api_key: str) -> bool:
@@ -102,7 +102,7 @@ def load_conversation(filepath: str) -> Optional[dict[str, Any]]:
             return None
 
         with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
+            return cast(dict[str, Any], json.load(f))
     except (json.JSONDecodeError, IOError):
         return None
 

@@ -16,8 +16,8 @@ from src.domain import (
     HealthCheckResponse,
     IndustrialDomain,
 )
-from src.interface.api.app import get_uptime
 from src.interface.api.dependencies import get_chat_service
+from src.interface.api.uptime import get_uptime
 
 logger = logging.getLogger(__name__)
 

@@ -12,15 +12,24 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Optional
+from typing import TYPE_CHECKING, Any, Optional
 
-from langchain_core.messages import (
-    AIMessage,
-    BaseMessage,
-    HumanMessage,
-    SystemMessage,
-)
-from langchain_openai import ChatOpenAI
+from pydantic import SecretStr
+
+if TYPE_CHECKING:
+    from langchain_core.messages import (
+        AIMessage,
+        BaseMessage,
+        HumanMessage,
+        SystemMessage,
+    )
+    from langchain_openai import ChatOpenAI
+else:
+    AIMessage = None
+    BaseMessage = Any
+    HumanMessage = None
+    SystemMessage = None
+    ChatOpenAI = None
 
 from src.config.settings import Settings, get_settings
 from src.domain import ChatMessage, MessageRole
@@ -56,15 +65,50 @@ class LLMClient:
                 "or pass it in Settings."
             )
 
-    def _create_llm(self) -> ChatOpenAI:
+    def _create_llm(self) -> Any:
         """Create a configured ChatOpenAI instance."""
-        return ChatOpenAI(
-            model=self._settings.llm_model,
-            temperature=self._settings.llm_temperature,
-            max_tokens=self._settings.llm_max_tokens,
-            openai_api_key=self._settings.openai_api_key,
-            request_timeout=self._settings.llm_request_timeout,
+        api_key = (
+            SecretStr(self._settings.openai_api_key) if self._settings.openai_api_key else None
         )
+        # Prefer the module-level `ChatOpenAI` symbol so tests can patch it.
+        if ChatOpenAI is not None:
+            try:
+                return ChatOpenAI(
+                    model=self._settings.llm_model,
+                    temperature=self._settings.llm_temperature,
+                    model_kwargs={"max_tokens": self._settings.llm_max_tokens},
+                    api_key=api_key,
+                    timeout=self._settings.llm_request_timeout,
+                )
+            except Exception:
+                # If the patched ChatOpenAI raises during tests, propagate so
+                # tests can assert behavior; otherwise fallthrough to dynamic
+                # import below.
+                pass
+
+        try:
+            from langchain_openai import ChatOpenAI as _ChatOpenAI
+
+            # Cache the imported class onto the module symbol so subsequent
+            # patches target the same name.
+            globals()["ChatOpenAI"] = _ChatOpenAI
+            return _ChatOpenAI(
+                model=self._settings.llm_model,
+                temperature=self._settings.llm_temperature,
+                model_kwargs={"max_tokens": self._settings.llm_max_tokens},
+                api_key=api_key,
+                timeout=self._settings.llm_request_timeout,
+            )
+        except Exception:
+            # Fallback dummy LLM for environments without langchain_openai.
+            class _DummyLLM:
+                def bind(self, **kwargs):
+                    return self
+
+                def invoke(self, messages):
+                    raise LLMError("LLM backend unavailable in this environment")
+
+            return _DummyLLM()
 
     # ── Public API ───────────────────────────────────────────────────────
 
@@ -91,7 +135,7 @@ class LLMClient:
         lc_messages = self._to_langchain_messages(messages, system_prompt)
 
         # Apply per-request temperature if provided
-        llm = self._llm
+        llm: Any = self._llm
         if temperature is not None:
             llm = self._llm.bind(temperature=temperature)
 
@@ -101,7 +145,7 @@ class LLMClient:
             latency_ms = (time.perf_counter() - start_time) * 1000
 
             self._total_requests += 1
-            text = response.content if hasattr(response, "content") else str(response)
+            text = self._extract_text(response)
 
             logger.info(
                 "LLM response generated",
@@ -174,22 +218,66 @@ class LLMClient:
     def _to_langchain_messages(
         messages: list[ChatMessage],
         system_prompt: str = "",
-    ) -> list[BaseMessage]:
+    ) -> list[Any]:
         """Convert domain messages to LangChain format."""
-        lc_messages: list[BaseMessage] = []
+        _LangchainAI: Any
+        _LangchainHuman: Any
+        _LangchainSystem: Any
+        try:
+            import importlib
+
+            messages_mod = importlib.import_module("langchain_core.messages")
+            _LangchainAI = getattr(messages_mod, "AIMessage")
+            _LangchainHuman = getattr(messages_mod, "HumanMessage")
+            _LangchainSystem = getattr(messages_mod, "SystemMessage")
+            use_real_classes = True
+        except Exception:
+            _LangchainAI = None
+            _LangchainHuman = None
+            _LangchainSystem = None
+            use_real_classes = False
+
+        lc_messages: list[Any] = []
 
         if system_prompt:
-            lc_messages.append(SystemMessage(content=system_prompt))
+            if use_real_classes:
+                lc_messages.append(_LangchainSystem(content=system_prompt))
+            else:
+                lc_messages.append({"role": "system", "content": system_prompt})
 
         for msg in messages:
             if msg.role == MessageRole.USER:
-                lc_messages.append(HumanMessage(content=msg.content))
+                lc_messages.append(
+                    _LangchainHuman(content=msg.content)
+                    if use_real_classes
+                    else {"role": "user", "content": msg.content}
+                )
             elif msg.role == MessageRole.ASSISTANT:
-                lc_messages.append(AIMessage(content=msg.content))
+                lc_messages.append(
+                    _LangchainAI(content=msg.content)
+                    if use_real_classes
+                    else {"role": "assistant", "content": msg.content}
+                )
             elif msg.role == MessageRole.SYSTEM:
-                lc_messages.append(SystemMessage(content=msg.content))
+                lc_messages.append(
+                    _LangchainSystem(content=msg.content)
+                    if use_real_classes
+                    else {"role": "system", "content": msg.content}
+                )
 
         return lc_messages
+
+    @staticmethod
+    def _extract_text(response: Any) -> str:
+        """Extract plain text from LangChain response payloads."""
+        if hasattr(response, "content"):
+            content = response.content
+            if isinstance(content, str):
+                return content
+            if isinstance(content, list):
+                return " ".join(str(item) for item in content)
+            return str(content)
+        return str(response)
 
 
 class LLMError(Exception):

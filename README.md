@@ -247,6 +247,7 @@ User Query
 
 ---
 
+
 ## Testing
 
 Comprehensive testing is organized by layer to support fast feedback and reliable CI behavior.
