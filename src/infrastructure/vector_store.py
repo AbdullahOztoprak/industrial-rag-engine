@@ -9,9 +9,9 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
-from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
+from langchain_openai import OpenAIEmbeddings
 
 from src.config.settings import Settings, get_settings
 

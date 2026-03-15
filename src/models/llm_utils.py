@@ -2,15 +2,16 @@
 LLM utility functions for industrial automation chatbot
 """
 
-from typing import List, Dict, Optional
+import os
+from typing import Dict, List, Optional
+
+from dotenv import load_dotenv
 from langchain.chat_models import ChatOpenAI
 from langchain.schema import (
     AIMessage,
     HumanMessage,
     SystemMessage,
 )
-import os
-from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()

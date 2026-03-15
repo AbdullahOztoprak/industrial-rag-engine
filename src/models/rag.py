@@ -1,14 +1,14 @@
 """Retrieval Augmented Generation (RAG) implementation for industrial documentation."""
 
 import os
-from typing import Dict, Optional, Any
+from typing import Any, Dict, Optional
 
-from langchain.document_loaders import DirectoryLoader, TextLoader, PyPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import Chroma
 from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatOpenAI
+from langchain.document_loaders import DirectoryLoader, PyPDFLoader, TextLoader
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.vectorstores import Chroma
 
 
 class IndustrialRAG:

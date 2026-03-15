@@ -5,8 +5,10 @@ API Routes for the Industrial AI Knowledge Assistant.
 from __future__ import annotations
 
 import logging
+
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from src.application.chat_service import ChatService
 from src.config.settings import Settings, get_settings
 from src.domain import (
     ChatRequest,
@@ -14,9 +16,8 @@ from src.domain import (
     HealthCheckResponse,
     IndustrialDomain,
 )
-from src.interface.api.dependencies import get_chat_service
 from src.interface.api.app import get_uptime
-from src.application.chat_service import ChatService
+from src.interface.api.dependencies import get_chat_service
 
 logger = logging.getLogger(__name__)
 

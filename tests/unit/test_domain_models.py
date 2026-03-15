@@ -4,22 +4,23 @@ Unit tests for domain models.
 Tests Pydantic model validation, serialization, and business logic.
 """
 
-import pytest
 from datetime import datetime
+
+import pytest
 
 from src.domain import (
     ChatMessage,
     ChatRequest,
-    Conversation,
     ConfidenceLevel,
+    Conversation,
     DocumentChunk,
     IndustrialDomain,
     IndustrialResponse,
     MessageRole,
+    RetrievalResult,
     RiskLevel,
     SafetyWarning,
     SourceAttribution,
-    RetrievalResult,
 )
 
 

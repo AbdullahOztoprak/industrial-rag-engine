@@ -4,10 +4,11 @@ Integration tests for API endpoints.
 Tests FastAPI routes using TestClient with mocked service layer.
 """
 
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 from fastapi.testclient import TestClient
-from src.interface.api.app import create_app
+
 from src.domain import (
     ChatResponseDTO,
     ConfidenceLevel,
@@ -15,6 +16,7 @@ from src.domain import (
     IndustrialResponse,
     RiskLevel,
 )
+from src.interface.api.app import create_app
 
 
 @pytest.fixture

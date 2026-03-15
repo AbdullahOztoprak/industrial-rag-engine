@@ -11,8 +11,8 @@ Configures the API server with:
 
 from __future__ import annotations
 
-import time
 import logging
+import time
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
@@ -21,8 +21,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from src.config.settings import get_settings
-from src.interface.api.routes import router
 from src.interface.api.middleware import RateLimitMiddleware
+from src.interface.api.routes import router
 
 logger = logging.getLogger(__name__)
 

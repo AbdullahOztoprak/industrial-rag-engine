@@ -4,11 +4,12 @@ Unit tests for LLM Client.
 Uses mocking to test LLM interactions without making real API calls.
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-from src.infrastructure.llm_client import LLMClient, LLMError
+import pytest
+
 from src.domain import ChatMessage, MessageRole
+from src.infrastructure.llm_client import LLMClient, LLMError
 
 
 class TestLLMClientInit:
@@ -138,7 +139,7 @@ class TestMessageConversion:
         assert result[0].content == "Hello"
 
     def test_convert_with_system_prompt(self):
-        from langchain_core.messages import SystemMessage, HumanMessage
+        from langchain_core.messages import HumanMessage, SystemMessage
 
         messages = [ChatMessage(role=MessageRole.USER, content="Hello")]
         result = LLMClient._to_langchain_messages(messages, system_prompt="Be helpful")
@@ -148,7 +149,7 @@ class TestMessageConversion:
         assert isinstance(result[1], HumanMessage)
 
     def test_convert_mixed_messages(self):
-        from langchain_core.messages import HumanMessage, AIMessage
+        from langchain_core.messages import AIMessage, HumanMessage
 
         messages = [
             ChatMessage(role=MessageRole.USER, content="Q"),

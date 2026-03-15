@@ -7,8 +7,8 @@ and human-readable format for development.
 
 from __future__ import annotations
 
-import logging
 import json
+import logging
 import sys
 from datetime import datetime
 from typing import Optional

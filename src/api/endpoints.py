@@ -2,10 +2,11 @@
 FastAPI endpoints for Industrial Automation Chatbot
 """
 
+from typing import List, Optional
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional
 
 app = FastAPI(
     title="Industrial Automation AI Assistant API",
