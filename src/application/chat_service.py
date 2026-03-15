@@ -13,6 +13,8 @@ import logging
 import time
 from typing import Optional
 
+from src.application.industrial_analyzer import IndustrialAnalyzer
+from src.application.rag_service import RAGService
 from src.config.settings import Settings, get_settings
 from src.domain import (
     ChatMessage,
@@ -22,8 +24,6 @@ from src.domain import (
     IndustrialResponse,
     MessageRole,
 )
-from src.application.industrial_analyzer import IndustrialAnalyzer
-from src.application.rag_service import RAGService
 from src.infrastructure.llm_client import LLMClient, LLMError
 
 logger = logging.getLogger(__name__)

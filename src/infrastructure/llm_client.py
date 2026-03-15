@@ -14,13 +14,13 @@ import logging
 import time
 from typing import Optional
 
-from langchain_openai import ChatOpenAI
 from langchain_core.messages import (
     AIMessage,
+    BaseMessage,
     HumanMessage,
     SystemMessage,
-    BaseMessage,
 )
+from langchain_openai import ChatOpenAI
 
 from src.config.settings import Settings, get_settings
 from src.domain import ChatMessage, MessageRole

@@ -6,6 +6,7 @@ All configuration is validated at startup to fail fast on misconfiguration.
 """
 
 from __future__ import annotations
+
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path

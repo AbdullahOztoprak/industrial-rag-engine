@@ -4,8 +4,9 @@ Unit tests for ChatService orchestration.
 Tests the full pipeline with mocked infrastructure dependencies.
 """
 
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 
 from src.application.chat_service import ChatService
 from src.domain import (

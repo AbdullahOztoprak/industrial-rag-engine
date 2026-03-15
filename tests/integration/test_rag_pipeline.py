@@ -5,11 +5,12 @@ Tests document loading, chunking, vector store, and retrieval
 using real documents but mocked embeddings.
 """
 
-import pytest
 from pathlib import Path
 
-from src.infrastructure.document_loader import DocumentLoader
+import pytest
+
 from src.config.settings import Settings
+from src.infrastructure.document_loader import DocumentLoader
 
 
 class TestDocumentLoader:

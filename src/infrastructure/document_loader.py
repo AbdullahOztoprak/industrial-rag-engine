@@ -13,11 +13,11 @@ from typing import Optional
 
 from langchain_community.document_loaders import (
     DirectoryLoader,
-    TextLoader,
     PyPDFLoader,
+    TextLoader,
 )
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from src.config.settings import Settings, get_settings
 
