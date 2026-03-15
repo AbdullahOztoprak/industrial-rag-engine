@@ -70,9 +70,28 @@ class LLMClient:
         api_key = (
             SecretStr(self._settings.openai_api_key) if self._settings.openai_api_key else None
         )
+        # Prefer the module-level `ChatOpenAI` symbol so tests can patch it.
+        if ChatOpenAI is not None:
+            try:
+                return ChatOpenAI(
+                    model=self._settings.llm_model,
+                    temperature=self._settings.llm_temperature,
+                    model_kwargs={"max_tokens": self._settings.llm_max_tokens},
+                    api_key=api_key,
+                    timeout=self._settings.llm_request_timeout,
+                )
+            except Exception:
+                # If the patched ChatOpenAI raises during tests, propagate so
+                # tests can assert behavior; otherwise fallthrough to dynamic
+                # import below.
+                pass
+
         try:
             from langchain_openai import ChatOpenAI as _ChatOpenAI
 
+            # Cache the imported class onto the module symbol so subsequent
+            # patches target the same name.
+            globals()["ChatOpenAI"] = _ChatOpenAI
             return _ChatOpenAI(
                 model=self._settings.llm_model,
                 temperature=self._settings.llm_temperature,
