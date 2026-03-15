@@ -7,7 +7,7 @@ Provides semantic search over industrial documentation embeddings.
 from __future__ import annotations
 
 import logging
-from typing import Any, Optional, cast, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 from pydantic import SecretStr
 
@@ -49,7 +49,9 @@ class VectorStore:
 
             return _OpenAIEmbeddings(model=self._settings.embedding_model, api_key=api_key)
         except Exception:
-            logger.debug("OpenAIEmbeddings unavailable in this environment; continuing without embeddings.")
+            logger.debug(
+                "OpenAIEmbeddings unavailable in this environment; continuing without embeddings."
+            )
             return None
 
     # ── Public API ───────────────────────────────────────────────────────

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Optional, cast, Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 from src.config.settings import Settings, get_settings
 
@@ -69,6 +69,7 @@ class DocumentLoader:
                 separators=["\n## ", "\n### ", "\n\n", "\n", ". ", " ", ""],
             )
         except Exception:
+
             class _SimpleSplitter:
                 def split_documents(self, docs):
                     # Naive fallback: return documents as-is
@@ -101,7 +102,9 @@ class DocumentLoader:
             # DirectoryLoader is stored under the special key '_dir' in the
             # mapping returned above.
             DirectoryLoader = loader_mapping.get("_dir")
-            for glob_pattern, loader_cls in {k: v for k, v in loader_mapping.items() if k != "_dir"}.items():
+            for glob_pattern, loader_cls in {
+                k: v for k, v in loader_mapping.items() if k != "_dir"
+            }.items():
                 try:
                     loader = DirectoryLoader(
                         str(docs_dir),
@@ -111,7 +114,9 @@ class DocumentLoader:
                     )
                     docs = loader.load()
                     all_documents.extend(docs)
-                    logger.info(f"Loaded {len(docs)} documents matching {glob_pattern} from {docs_dir}")
+                    logger.info(
+                        f"Loaded {len(docs)} documents matching {glob_pattern} from {docs_dir}"
+                    )
                 except Exception as e:
                     logger.error(f"Error loading {glob_pattern} files: {e}")
 
@@ -163,9 +168,7 @@ class DocumentLoader:
 
         if loader_cls is None:
             supported = [k for k in loader_mapping.keys() if k != "_dir"]
-            raise ValueError(
-                f"Unsupported file type: {suffix}. Supported: {supported}"
-            )
+            raise ValueError(f"Unsupported file type: {suffix}. Supported: {supported}")
 
         try:
             loader = loader_cls(str(path))

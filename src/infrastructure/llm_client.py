@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 
 from pydantic import SecretStr
 
@@ -202,7 +202,9 @@ class LLMClient:
     ) -> list[BaseMessage]:
         """Convert domain messages to LangChain format."""
         try:
-            from langchain_core.messages import AIMessage as _AIMessage, HumanMessage as _HumanMessage, SystemMessage as _SystemMessage
+            from langchain_core.messages import AIMessage as _AIMessage
+            from langchain_core.messages import HumanMessage as _HumanMessage
+            from langchain_core.messages import SystemMessage as _SystemMessage
 
             use_real_classes = True
         except Exception:
@@ -219,11 +221,23 @@ class LLMClient:
 
         for msg in messages:
             if msg.role == MessageRole.USER:
-                lc_messages.append(_HumanMessage(content=msg.content) if use_real_classes else {"role": "user", "content": msg.content})
+                lc_messages.append(
+                    _HumanMessage(content=msg.content)
+                    if use_real_classes
+                    else {"role": "user", "content": msg.content}
+                )
             elif msg.role == MessageRole.ASSISTANT:
-                lc_messages.append(_AIMessage(content=msg.content) if use_real_classes else {"role": "assistant", "content": msg.content})
+                lc_messages.append(
+                    _AIMessage(content=msg.content)
+                    if use_real_classes
+                    else {"role": "assistant", "content": msg.content}
+                )
             elif msg.role == MessageRole.SYSTEM:
-                lc_messages.append(_SystemMessage(content=msg.content) if use_real_classes else {"role": "system", "content": msg.content})
+                lc_messages.append(
+                    _SystemMessage(content=msg.content)
+                    if use_real_classes
+                    else {"role": "system", "content": msg.content}
+                )
 
         return lc_messages
 
