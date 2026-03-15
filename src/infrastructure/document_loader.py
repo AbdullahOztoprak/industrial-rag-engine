@@ -20,7 +20,6 @@ logger = logging.getLogger(__name__)
 # requiring langchain packages to be installed in the local environment.
 if TYPE_CHECKING:
     from langchain_core.documents import Document
-    from langchain_text_splitters import RecursiveCharacterTextSplitter
 else:
     Document = Any  # runtime fallback when langchain_core isn't available
 
@@ -163,8 +162,9 @@ class DocumentLoader:
                 break
 
         if loader_cls is None:
+            supported = [k for k in loader_mapping.keys() if k != "_dir"]
             raise ValueError(
-                f"Unsupported file type: {suffix}. " f"Supported: {list(LOADER_MAPPING.keys())}"
+                f"Unsupported file type: {suffix}. Supported: {supported}"
             )
 
         try:
