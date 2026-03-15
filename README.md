@@ -8,10 +8,6 @@ A production-grade, Retrieval-Augmented Generation (RAG) system for industrial a
 
 This project goes beyond a generic chatbot by combining retrieval, domain-aware analysis, and structured output contracts designed for safety-sensitive engineering contexts. Instead of returning plain free-form text, it provides confidence-aware and source-attributed responses tailored to PLC, SCADA, BAS, and adjacent industrial domains.
 
-[![CI](https://github.com/your-username/Langchain_website_chatbot/actions/workflows/ci.yml/badge.svg)](https://github.com/your-username/Langchain_website_chatbot/actions)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
