@@ -12,6 +12,7 @@ from langchain.schema import (
     SystemMessage,
 )
 from langchain_openai import ChatOpenAI
+from pydantic import SecretStr
 
 # Load environment variables
 load_dotenv()
@@ -44,14 +45,18 @@ class IndustrialLLMHelper:
             system_prompt: System prompt to guide model behavior
             api_key: OpenAI API key, defaults to env variable
         """
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
+        self.api_key: str = api_key or os.getenv("OPENAI_API_KEY") or ""
         if not self.api_key:
             raise ValueError("OpenAI API key is required")
 
         self.model_name = model_name
         self.temperature = temperature
         self.system_prompt = system_prompt
-        self.llm = ChatOpenAI(model=model_name, temperature=temperature, api_key=self.api_key)
+        self.llm = ChatOpenAI(
+            model=model_name,
+            temperature=temperature,
+            api_key=SecretStr(self.api_key),
+        )
 
     def get_chat_response(self, messages: List[Dict[str, str]]) -> str:
         """Generate a response using the chat model
@@ -90,7 +95,11 @@ class IndustrialLLMHelper:
             model_name: New model name to use
         """
         self.model_name = model_name
-        self.llm = ChatOpenAI(model=model_name, temperature=self.temperature, api_key=self.api_key)
+        self.llm = ChatOpenAI(
+            model=model_name,
+            temperature=self.temperature,
+            api_key=SecretStr(self.api_key),
+        )
 
     def change_temperature(self, temperature: float) -> None:
         """Change the temperature parameter
@@ -102,7 +111,11 @@ class IndustrialLLMHelper:
             raise ValueError("Temperature must be between 0.0 and 1.0")
 
         self.temperature = temperature
-        self.llm = ChatOpenAI(model=self.model_name, temperature=temperature, api_key=self.api_key)
+        self.llm = ChatOpenAI(
+            model=self.model_name,
+            temperature=temperature,
+            api_key=SecretStr(self.api_key),
+        )
 
     def get_industrial_examples(self) -> List[Dict[str, str]]:
         """Get example questions for industrial automation

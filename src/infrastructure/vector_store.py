@@ -12,6 +12,7 @@ from typing import Any, Optional, cast
 from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
 from langchain_openai import OpenAIEmbeddings
+from pydantic import SecretStr
 
 from src.config.settings import Settings, get_settings
 
@@ -36,9 +37,12 @@ class VectorStore:
 
     def _create_embeddings(self) -> OpenAIEmbeddings:
         """Create configured embedding model."""
+        api_key = (
+            SecretStr(self._settings.openai_api_key) if self._settings.openai_api_key else None
+        )
         return OpenAIEmbeddings(
             model=self._settings.embedding_model,
-            api_key=self._settings.openai_api_key,
+            api_key=api_key,
         )
 
     # ── Public API ───────────────────────────────────────────────────────

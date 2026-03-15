@@ -1,6 +1,7 @@
 """Retrieval Augmented Generation (RAG) implementation for industrial documentation."""
 
 import os
+from pathlib import Path
 from typing import Any, Optional, cast
 
 from langchain.chains import RetrievalQA
@@ -8,6 +9,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import DirectoryLoader, PyPDFLoader, TextLoader
 from langchain_community.vectorstores import Chroma
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from pydantic import SecretStr
 
 
 class IndustrialRAG:
@@ -38,8 +40,11 @@ class IndustrialRAG:
         self.embedding_model = embedding_model
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
-        self.embeddings = OpenAIEmbeddings(model=embedding_model, openai_api_key=self.api_key)
-        self.vectorstore = None
+        self.embeddings = OpenAIEmbeddings(
+            model=embedding_model,
+            api_key=SecretStr(self.api_key),
+        )
+        self.vectorstore: Optional[Chroma] = None
 
     def load_documents(self) -> None:
         """Load documents from the specified directory."""
@@ -47,7 +52,7 @@ class IndustrialRAG:
             print(f"Directory not found: {self.docs_dir}")
             return
 
-        loaders = []
+        loaders: list[DirectoryLoader] = []
 
         try:
             text_loader = DirectoryLoader(self.docs_dir, glob="**/*.txt", loader_cls=TextLoader)
@@ -55,18 +60,19 @@ class IndustrialRAG:
         except Exception as e:
             print(f"Error loading text files: {e}")
 
-        try:
-            pdf_loader = DirectoryLoader(self.docs_dir, glob="**/*.pdf", loader_cls=PyPDFLoader)
-            loaders.append(pdf_loader)
-        except Exception as e:
-            print(f"Error loading PDF files: {e}")
-
         documents = []
         for loader in loaders:
             try:
                 documents.extend(loader.load())
             except Exception as e:
                 print(f"Error in document loading: {e}")
+
+        # Load PDFs explicitly (DirectoryLoader typing does not accept PyPDFLoader)
+        for pdf_path in Path(self.docs_dir).rglob("*.pdf"):
+            try:
+                documents.extend(PyPDFLoader(str(pdf_path)).load())
+            except Exception as e:
+                print(f"Error loading PDF file {pdf_path}: {e}")
 
         print(f"Loaded {len(documents)} documents")
 
@@ -133,6 +139,7 @@ class IndustrialRAG:
             return False
 
         try:
+            loader: TextLoader | PyPDFLoader
             if file_path.endswith(".pdf"):
                 loader = PyPDFLoader(file_path)
             elif file_path.endswith(".txt"):

@@ -21,6 +21,7 @@ from langchain_core.messages import (
     SystemMessage,
 )
 from langchain_openai import ChatOpenAI
+from pydantic import SecretStr
 
 from src.config.settings import Settings, get_settings
 from src.domain import ChatMessage, MessageRole
@@ -58,11 +59,14 @@ class LLMClient:
 
     def _create_llm(self) -> Any:
         """Create a configured ChatOpenAI instance."""
+        api_key = (
+            SecretStr(self._settings.openai_api_key) if self._settings.openai_api_key else None
+        )
         return ChatOpenAI(
             model=self._settings.llm_model,
             temperature=self._settings.llm_temperature,
-            max_tokens=self._settings.llm_max_tokens,
-            api_key=self._settings.openai_api_key,
+            model_kwargs={"max_tokens": self._settings.llm_max_tokens},
+            api_key=api_key,
             timeout=self._settings.llm_request_timeout,
         )
 
