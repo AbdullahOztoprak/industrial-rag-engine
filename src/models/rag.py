@@ -32,7 +32,7 @@ class IndustrialRAG:
             chunk_overlap: Overlap between chunks
             api_key: OpenAI API key
         """
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
+        self.api_key: str = api_key or os.getenv("OPENAI_API_KEY") or ""
         if not self.api_key:
             raise ValueError("OpenAI API key is required")
 
@@ -103,7 +103,7 @@ class IndustrialRAG:
                 "sources": [],
             }
 
-        llm = ChatOpenAI(model=model, temperature=0.7, api_key=self.api_key)
+        llm = ChatOpenAI(model=model, temperature=0.7, api_key=SecretStr(self.api_key))
 
         qa_chain = RetrievalQA.from_chain_type(
             llm=llm,
