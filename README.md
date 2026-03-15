@@ -18,15 +18,17 @@ This project goes beyond a generic chatbot by combining retrieval, domain-aware 
 ## Key Features
 
 - RAG architecture with ChromaDB retrieval and OpenAI generation
+- Source attribution from retrieved industrial documents
 - Confidence scoring with explicit confidence levels and numeric score
 - Safety warning detection with industrial standard references
 - Hallucination mitigation through post-generation signal checks
-- Structured industrial responses: Problem -> Root Cause -> Solution
+- Structured industrial analysis: Problem -> Root Cause -> Solution
 - Clean architecture with clear layer boundaries and testable components
+- Dual interface: FastAPI API + Streamlit UI
 
 ---
 
-## System Overview
+## Overview
 
 The Industrial AI Knowledge Assistant is a domain-focused AI service that answers automation questions with traceability and risk awareness.
 
@@ -245,7 +247,7 @@ User Query
 
 ---
 
-## Testing Strategy
+## Testing
 
 Comprehensive testing is organized by layer to support fast feedback and reliable CI behavior.
 
