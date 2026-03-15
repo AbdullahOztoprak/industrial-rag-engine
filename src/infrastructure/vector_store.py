@@ -7,7 +7,7 @@ Provides semantic search over industrial documentation embeddings.
 from __future__ import annotations
 
 import logging
-from typing import Optional
+from typing import Any, Optional, cast
 
 from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
@@ -38,7 +38,7 @@ class VectorStore:
         """Create configured embedding model."""
         return OpenAIEmbeddings(
             model=self._settings.embedding_model,
-            openai_api_key=self._settings.openai_api_key,
+            api_key=self._settings.openai_api_key,
         )
 
     # ── Public API ───────────────────────────────────────────────────────
@@ -98,7 +98,7 @@ class VectorStore:
         try:
             results = self._store.similarity_search_with_relevance_scores(query, k=top_k)
             logger.debug(f"Similarity search for '{query[:50]}...' returned {len(results)} results")
-            return results
+            return cast(list[tuple[Document, float]], results)
 
         except Exception as e:
             logger.error(f"Similarity search failed: {e}")
@@ -115,6 +115,7 @@ class VectorStore:
         if self._store is None:
             return 0
         try:
-            return self._store._collection.count()
+            count_fn = cast(Any, self._store._collection.count)
+            return int(count_fn())
         except Exception:
             return 0

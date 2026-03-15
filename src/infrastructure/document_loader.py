@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Optional, cast
 
 from langchain_community.document_loaders import (
     DirectoryLoader,
@@ -86,7 +86,7 @@ class DocumentLoader:
             return []
 
         # Split into chunks
-        chunks = self._splitter.split_documents(all_documents)
+        chunks = cast(list[Document], self._splitter.split_documents(all_documents))
 
         # Enrich metadata
         for i, chunk in enumerate(chunks):
@@ -134,7 +134,7 @@ class DocumentLoader:
         try:
             loader = loader_cls(str(path))
             docs = loader.load()
-            chunks = self._splitter.split_documents(docs)
+            chunks = cast(list[Document], self._splitter.split_documents(docs))
 
             for i, chunk in enumerate(chunks):
                 chunk.metadata["chunk_index"] = i

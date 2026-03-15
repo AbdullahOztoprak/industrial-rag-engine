@@ -1,14 +1,13 @@
 """Retrieval Augmented Generation (RAG) implementation for industrial documentation."""
 
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Optional, cast
 
 from langchain.chains import RetrievalQA
-from langchain.chat_models import ChatOpenAI
-from langchain.document_loaders import DirectoryLoader, PyPDFLoader, TextLoader
-from langchain.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import Chroma
+from langchain_community.document_loaders import DirectoryLoader, PyPDFLoader, TextLoader
+from langchain_community.vectorstores import Chroma
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 
 class IndustrialRAG:
@@ -16,7 +15,7 @@ class IndustrialRAG:
 
     def __init__(
         self,
-        docs_dir: str = None,
+        docs_dir: Optional[str] = None,
         embedding_model: str = "text-embedding-ada-002",
         chunk_size: int = 1000,
         chunk_overlap: int = 200,
@@ -82,7 +81,7 @@ class IndustrialRAG:
 
         print("Vector store created successfully")
 
-    def query(self, question: str, model: str = "gpt-3.5-turbo") -> Dict[str, Any]:
+    def query(self, question: str, model: str = "gpt-3.5-turbo") -> dict[str, Any]:
         """Query the RAG system.
 
         Args:
@@ -98,7 +97,7 @@ class IndustrialRAG:
                 "sources": [],
             }
 
-        llm = ChatOpenAI(model_name=model, temperature=0.7, openai_api_key=self.api_key)
+        llm = ChatOpenAI(model=model, temperature=0.7, api_key=self.api_key)
 
         qa_chain = RetrievalQA.from_chain_type(
             llm=llm,
@@ -107,13 +106,13 @@ class IndustrialRAG:
             return_source_documents=True,
         )
 
-        result = qa_chain({"query": question})
+        result = cast(dict[str, Any], qa_chain({"query": question}))
 
         sources = []
-        if hasattr(result, "source_documents"):
-            for doc in result.source_documents:
-                if hasattr(doc, "metadata") and "source" in doc.metadata:
-                    sources.append(doc.metadata["source"])
+        source_docs = result.get("source_documents", [])
+        for doc in source_docs:
+            if hasattr(doc, "metadata") and "source" in doc.metadata:
+                sources.append(doc.metadata["source"])
 
         return {
             "answer": result["result"],

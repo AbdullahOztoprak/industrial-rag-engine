@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Optional
+from typing import Any, Optional
 
 from langchain_core.messages import (
     AIMessage,
@@ -56,14 +56,14 @@ class LLMClient:
                 "or pass it in Settings."
             )
 
-    def _create_llm(self) -> ChatOpenAI:
+    def _create_llm(self) -> Any:
         """Create a configured ChatOpenAI instance."""
         return ChatOpenAI(
             model=self._settings.llm_model,
             temperature=self._settings.llm_temperature,
             max_tokens=self._settings.llm_max_tokens,
-            openai_api_key=self._settings.openai_api_key,
-            request_timeout=self._settings.llm_request_timeout,
+            api_key=self._settings.openai_api_key,
+            timeout=self._settings.llm_request_timeout,
         )
 
     # ── Public API ───────────────────────────────────────────────────────
@@ -91,7 +91,7 @@ class LLMClient:
         lc_messages = self._to_langchain_messages(messages, system_prompt)
 
         # Apply per-request temperature if provided
-        llm = self._llm
+        llm: Any = self._llm
         if temperature is not None:
             llm = self._llm.bind(temperature=temperature)
 
@@ -101,7 +101,7 @@ class LLMClient:
             latency_ms = (time.perf_counter() - start_time) * 1000
 
             self._total_requests += 1
-            text = response.content if hasattr(response, "content") else str(response)
+            text = self._extract_text(response)
 
             logger.info(
                 "LLM response generated",
@@ -190,6 +190,18 @@ class LLMClient:
                 lc_messages.append(SystemMessage(content=msg.content))
 
         return lc_messages
+
+    @staticmethod
+    def _extract_text(response: Any) -> str:
+        """Extract plain text from LangChain response payloads."""
+        if hasattr(response, "content"):
+            content = response.content
+            if isinstance(content, str):
+                return content
+            if isinstance(content, list):
+                return " ".join(str(item) for item in content)
+            return str(content)
+        return str(response)
 
 
 class LLMError(Exception):

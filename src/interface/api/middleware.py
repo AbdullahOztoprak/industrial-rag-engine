@@ -8,7 +8,7 @@ import logging
 import time
 from collections import defaultdict
 
-from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
@@ -28,7 +28,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.max_requests = max_requests
         self._requests: dict[str, list[float]] = defaultdict(list)
 
-    async def dispatch(self, request: Request, call_next) -> Response:  # noqa: ANN001
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         client_ip = request.client.host if request.client else "unknown"
         now = time.time()
         window = 60.0  # 1 minute window
@@ -47,7 +47,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         # Log request
         start = time.perf_counter()
-        response = await call_next(request)
+        response: Response = await call_next(request)
         latency = (time.perf_counter() - start) * 1000
 
         logger.info(

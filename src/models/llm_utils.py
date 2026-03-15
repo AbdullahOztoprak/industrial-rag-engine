@@ -6,12 +6,12 @@ import os
 from typing import Dict, List, Optional
 
 from dotenv import load_dotenv
-from langchain.chat_models import ChatOpenAI
 from langchain.schema import (
     AIMessage,
     HumanMessage,
     SystemMessage,
 )
+from langchain_openai import ChatOpenAI
 
 # Load environment variables
 load_dotenv()
@@ -51,9 +51,7 @@ class IndustrialLLMHelper:
         self.model_name = model_name
         self.temperature = temperature
         self.system_prompt = system_prompt
-        self.llm = ChatOpenAI(
-            model_name=model_name, temperature=temperature, openai_api_key=self.api_key
-        )
+        self.llm = ChatOpenAI(model=model_name, temperature=temperature, api_key=self.api_key)
 
     def get_chat_response(self, messages: List[Dict[str, str]]) -> str:
         """Generate a response using the chat model
@@ -83,7 +81,7 @@ class IndustrialLLMHelper:
         response = self.llm.generate([lc_messages])
 
         # Extract and return generated text
-        return response.generations[0][0].text
+        return str(response.generations[0][0].text)
 
     def change_model(self, model_name: str) -> None:
         """Change the underlying LLM model
@@ -92,11 +90,7 @@ class IndustrialLLMHelper:
             model_name: New model name to use
         """
         self.model_name = model_name
-        self.llm = ChatOpenAI(
-            model_name=model_name,
-            temperature=self.temperature,
-            openai_api_key=self.api_key,
-        )
+        self.llm = ChatOpenAI(model=model_name, temperature=self.temperature, api_key=self.api_key)
 
     def change_temperature(self, temperature: float) -> None:
         """Change the temperature parameter
@@ -108,11 +102,7 @@ class IndustrialLLMHelper:
             raise ValueError("Temperature must be between 0.0 and 1.0")
 
         self.temperature = temperature
-        self.llm = ChatOpenAI(
-            model_name=self.model_name,
-            temperature=temperature,
-            openai_api_key=self.api_key,
-        )
+        self.llm = ChatOpenAI(model=self.model_name, temperature=temperature, api_key=self.api_key)
 
     def get_industrial_examples(self) -> List[Dict[str, str]]:
         """Get example questions for industrial automation
